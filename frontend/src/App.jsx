@@ -17,11 +17,12 @@ function App() {
     const normalizedBase = envUrl?.trim().replace(/\/$/, "");
 
     if (normalizedBase) {
+      if (normalizedBase.startsWith("http")) return `${normalizedBase}/app/api/v1/travel/plan`;
       return `${normalizedBase}/app/api/v1/travel/plan`;
     }
 
     if (typeof window !== "undefined" && window.location.hostname !== "localhost") {
-      return "/app/api/v1/travel/plan";
+      return "https://ai-powered-travel-planner-with-cost.vercel.app/app/api/v1/travel/plan";
     }
 
     return "http://localhost:8000/app/api/v1/travel/plan";
