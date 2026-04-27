@@ -15,7 +15,7 @@ def create_application() -> FastAPI:
             "http://localhost:80",
             "http://localhost:5173",
             "http://localhost:5174",
-            "*"  # Allows all origins
+            "https://voyageagent.netlify.app",
         ],
         allow_credentials=True,
         allow_methods=["*"],
