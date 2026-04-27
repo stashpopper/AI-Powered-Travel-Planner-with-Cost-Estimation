@@ -33,6 +33,7 @@ function App() {
 
     try {
       const res = await axios.post(apiUrl, payload);
+      console.log("API Response:", res.data); // Log the raw API response
       setData(res.data);
       if (res.data?.error?.detail) {
         const stage = res.data.error.stage ? `[${res.data.error.stage}] ` : "";
