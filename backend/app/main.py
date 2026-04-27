@@ -10,14 +10,7 @@ def create_application() -> FastAPI:
 
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=[
-            "http://localhost",
-            "http://localhost:80",
-            "http://localhost:5173",
-            "http://localhost:5174",
-            "https://voyageagent.netlify.app",
-        ],
-        allow_credentials=True,
+        allow_origins=["*"],
         allow_methods=["*"],
         allow_headers=["*"],
     )
