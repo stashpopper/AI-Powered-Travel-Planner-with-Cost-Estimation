@@ -9,6 +9,7 @@ class TravelRequest(BaseModel):
     """Input payload for generating travel plans."""
 
     origin: str
+    destination: str
     preferences: list[str]
     budget: Optional[int] = Field(default=None, gt=0)
     days: int = Field(ge=1, le=30)
@@ -20,6 +21,15 @@ class TravelRequest(BaseModel):
         cleaned = value.strip()
         if not cleaned:
             raise ValueError("origin must not be empty")
+        return cleaned
+
+    @field_validator("destination")
+    @classmethod
+    def validate_destination(cls, value: str) -> str:
+        """Ensure the destination is a non-empty string."""
+        cleaned = value.strip()
+        if not cleaned:
+            raise ValueError("destination must not be empty")
         return cleaned
 
     @field_validator("preferences")

@@ -158,7 +158,7 @@ def _extract_unique_locations(plan: TravelPlan) -> list[str]:
 
 def _build_search_query(request: TravelRequest) -> str:
     """Build a location-first Tavily query that works for countries, states, cities, and regions."""
-    location = request.origin.strip()
+    location = request.destination.strip()
     cleaned_preferences = [preference.strip().lower() for preference in request.preferences if preference.strip()]
 
     preference_text = ", ".join(cleaned_preferences) if cleaned_preferences else "general sightseeing"
