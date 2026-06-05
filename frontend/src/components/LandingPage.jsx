@@ -34,7 +34,7 @@ function HeroSection() {
 
       {/* Content */}
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-32 lg:py-40">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center overflow-x-hidden">
+        <div className="grid lg:grid-cols-2 gap-6 sm:gap-12 lg:gap-16 items-center overflow-x-hidden">
           {/* Left - Text */}
           <motion.div
             initial={{ opacity: 0, y: 40 }}
@@ -128,7 +128,7 @@ function HeroSection() {
             className="relative"
           >
             {/* Main glass card */}
-            <div className="relative rounded-2xl border border-white/20 bg-white/10 backdrop-blur-xl shadow-2xl overflow-hidden">
+            <div className="relative rounded-2xl border border-white/20 bg-white/10 backdrop-blur-xl shadow-2xl overflow-hidden max-w-full p-4 sm:p-6">
               {/* Header */}
               <div className="flex items-center gap-3 mb-5">
                 <div className="flex gap-1.5">

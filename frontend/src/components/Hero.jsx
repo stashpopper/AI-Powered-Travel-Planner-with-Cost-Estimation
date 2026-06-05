@@ -150,7 +150,7 @@ function Hero() {
 
       {/* Content */}
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-24 lg:py-32">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+        <div className="grid lg:grid-cols-2 gap-6 sm:gap-12 lg:gap-16 items-center overflow-x-hidden">
           {/* Left - Text */}
           <motion.div
             variants={staggerChildren}
@@ -222,7 +222,7 @@ function Hero() {
             className="relative"
           >
             {/* Glass card */}
-            <div className="relative rounded-2xl border border-white/10 bg-white/[0.05] backdrop-blur-xl shadow-2xl overflow-hidden">
+            <div className="relative rounded-2xl border border-white/10 bg-white/[0.05] backdrop-blur-xl shadow-2xl overflow-hidden max-w-full p-4 sm:p-6">
               {/* Header */}
               <div className="flex items-center gap-3 mb-5">
                 <div className="flex gap-1.5">
@@ -338,7 +338,7 @@ function Hero() {
               </AnimatePresence>
 
               {/* Decorative corner */}
-              <div className="absolute -top-2 -right-2 w-6 h-6 rounded-br-xl bg-gradient-to-bl from-indigo-500/30 to-transparent" />
+              <div className="hidden sm:block absolute -top-2 -right-2 w-6 h-6 rounded-br-xl bg-gradient-to-bl from-indigo-500/30 to-transparent" />
             </div>
 
             {/* Floating elements */}
