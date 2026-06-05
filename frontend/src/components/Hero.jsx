@@ -133,7 +133,7 @@ function Hero() {
   }
 
   return (
-    <section className="relative min-h-[92vh] flex items-center overflow-hidden">
+    <section className="relative min-h-[92vh] flex items-center overflow-hidden overflow-x-hidden" style={{overflowX: 'hidden'}}>
       {/* Background */}
       <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900" />
 
@@ -149,7 +149,7 @@ function Hero() {
       }} />
 
       {/* Content */}
-      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-24 lg:py-32">
+      <div className="relative mx-auto max-w-7xl px-3 sm:px-6 lg:px-8 py-24 lg:py-32">
         <div className="grid lg:grid-cols-2 gap-6 sm:gap-12 lg:gap-16 items-center overflow-x-hidden">
           {/* Left - Text */}
           <motion.div
@@ -219,10 +219,10 @@ function Hero() {
             initial="initial"
             whileInView="whileInView"
             viewport={{ once: true }}
-            className="relative"
+            className="relative mx-auto max-w-[90vw] sm:max-w-none"
           >
             {/* Glass card */}
-            <div className="relative rounded-2xl border border-white/10 bg-white/[0.05] backdrop-blur-xl shadow-2xl overflow-hidden max-w-full p-4 sm:p-6">
+            <div className="relative rounded-2xl border border-white/10 bg-white/[0.05] backdrop-blur-xl shadow-2xl overflow-hidden max-w-[90vw] sm:max-w-full p-3 sm:p-6">
               {/* Header */}
               <div className="flex items-center gap-3 mb-5">
                 <div className="flex gap-1.5">

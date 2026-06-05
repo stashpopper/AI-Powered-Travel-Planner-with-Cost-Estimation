@@ -11,7 +11,7 @@ function HeroSection() {
   const isInView = useInView(ref, { once: true, margin: '-100px' })
 
   return (
-    <section ref={ref} className="relative min-h-screen flex items-center overflow-hidden">
+    <section ref={ref} className="relative min-h-screen flex items-center overflow-hidden overflow-x-hidden" style={{overflowX: 'hidden'}}>
       {/* Background */}
       <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-violet-600 to-purple-700" />
       <div className="absolute inset-0" style={{
@@ -33,7 +33,7 @@ function HeroSection() {
       </motion.div>
 
       {/* Content */}
-      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-32 lg:py-40">
+      <div className="relative mx-auto max-w-7xl px-3 sm:px-6 lg:px-8 py-32 lg:py-40">
         <div className="grid lg:grid-cols-2 gap-6 sm:gap-12 lg:gap-16 items-center overflow-x-hidden">
           {/* Left - Text */}
           <motion.div
@@ -125,10 +125,10 @@ function HeroSection() {
             initial={{ opacity: 0, x: 40 }}
             animate={isInView ? { opacity: 1, x: 0 } : {}}
             transition={{ delay: 0.4, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            className="relative"
+            className="relative mx-auto max-w-[90vw] sm:max-w-none"
           >
             {/* Main glass card */}
-            <div className="relative rounded-2xl border border-white/20 bg-white/10 backdrop-blur-xl shadow-2xl overflow-hidden max-w-full p-4 sm:p-6">
+            <div className="relative rounded-2xl border border-white/20 bg-white/10 backdrop-blur-xl shadow-2xl overflow-hidden max-w-[90vw] sm:max-w-full p-3 sm:p-6">
               {/* Header */}
               <div className="flex items-center gap-3 mb-5">
                 <div className="flex gap-1.5">
