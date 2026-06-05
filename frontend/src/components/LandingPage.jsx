@@ -20,8 +20,8 @@ function HeroSection() {
       }} />
 
       {/* Animated blobs */}
-      <div className="absolute -top-40 -left-40 w-96 h-96 bg-blue-500/30 rounded-full blur-3xl animate-blob" />
-      <div className="absolute top-1/3 -right-20 w-80 h-80 bg-violet-500/30 rounded-full blur-3xl animate-blob animation-delay-2000" />
+      <div className="absolute -top-20 -left-20 sm:-top-40 sm:-left-40 w-64 sm:w-96 h-64 sm:h-96 bg-blue-500/30 rounded-full blur-3xl animate-blob" />
+      <div className="absolute top-1/3 -right-10 sm:-right-20 w-56 sm:w-80 h-56 sm:h-80 bg-violet-500/30 rounded-full blur-3xl animate-blob animation-delay-2000" />
       <div className="absolute bottom-1/4 left-1/4 w-72 h-72 bg-amber-500/20 rounded-full blur-3xl animate-blob animation-delay-4000" />
 
       {/* Floating elements */}
@@ -34,7 +34,7 @@ function HeroSection() {
 
       {/* Content */}
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-32 lg:py-40">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center overflow-x-hidden">
           {/* Left - Text */}
           <motion.div
             initial={{ opacity: 0, y: 40 }}
@@ -128,7 +128,7 @@ function HeroSection() {
             className="relative"
           >
             {/* Main glass card */}
-            <div className="relative rounded-2xl border border-white/20 bg-white/10 backdrop-blur-xl p-6 shadow-2xl">
+            <div className="relative rounded-2xl border border-white/20 bg-white/10 backdrop-blur-xl shadow-2xl overflow-hidden">
               {/* Header */}
               <div className="flex items-center gap-3 mb-5">
                 <div className="flex gap-1.5">
@@ -188,17 +188,17 @@ function HeroSection() {
             <motion.div
               animate={{ y: [0, -8, 0] }}
               transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-              className="absolute -top-4 -left-4 w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 shadow-lg flex items-center justify-center"
+              className="absolute -top-2 -left-2 sm:-top-4 sm:-left-4 w-12 h-12 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 shadow-lg flex items-center justify-center"
             >
-              <Plane className="w-7 h-7 text-white -rotate-12" />
+              <Plane className="w-5 h-5 sm:w-7 sm:h-7 text-white -rotate-12" />
             </motion.div>
 
             <motion.div
               animate={{ y: [0, 6, 0] }}
               transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
-              className="absolute -bottom-3 -right-3 w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-500 shadow-lg flex items-center justify-center"
+              className="absolute -bottom-2 -right-2 sm:-bottom-3 sm:-right-3 w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-500 shadow-lg flex items-center justify-center"
             >
-              <span className="text-sm font-bold text-white">$</span>
+              <span className="text-xs sm:text-sm font-bold text-white">$</span>
             </motion.div>
           </motion.div>
         </div>

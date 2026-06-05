@@ -222,7 +222,7 @@ function Hero() {
             className="relative"
           >
             {/* Glass card */}
-            <div className="relative rounded-2xl border border-white/10 bg-white/[0.05] backdrop-blur-xl p-6 shadow-2xl">
+            <div className="relative rounded-2xl border border-white/10 bg-white/[0.05] backdrop-blur-xl shadow-2xl overflow-hidden">
               {/* Header */}
               <div className="flex items-center gap-3 mb-5">
                 <div className="flex gap-1.5">
@@ -345,7 +345,7 @@ function Hero() {
             <motion.div
               animate={{ y: [0, -8, 0], rotate: [0, -5, 5, 0] }}
               transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute -top-4 -left-4 w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 shadow-lg flex items-center justify-center"
+              className="absolute -top-2 -left-2 sm:-top-4 sm:-left-4 w-12 h-12 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 shadow-lg flex items-center justify-center"
             >
               <Plane className="w-7 h-7 text-white -rotate-12" />
             </motion.div>
@@ -353,7 +353,7 @@ function Hero() {
             <motion.div
               animate={{ y: [0, 6, 0], rotate: [0, 5, -5, 0] }}
               transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-              className="absolute -bottom-3 -right-3 w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-500 shadow-lg flex items-center justify-center"
+              className="absolute -bottom-2 -right-2 sm:-bottom-3 sm:-right-3 w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-500 shadow-lg flex items-center justify-center"
             >
               <span className="text-sm font-bold text-white">$</span>
             </motion.div>
@@ -362,24 +362,24 @@ function Hero() {
             <motion.div
               animate={{ y: [0, -15, 0], opacity: [0.3, 0.8, 0.3] }}
               transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute top-1/4 -right-8 w-2 h-2 rounded-full bg-indigo-400/60"
+              className="hidden sm:block absolute top-1/4 -right-8 w-2 h-2 rounded-full bg-indigo-400/60"
             />
             <motion.div
               animate={{ y: [0, -10, 0], opacity: [0.2, 0.6, 0.2] }}
               transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-              className="absolute top-1/2 -left-6 w-1.5 h-1.5 rounded-full bg-amber-400/60"
+              className="hidden sm:block absolute top-1/2 -left-6 w-1.5 h-1.5 rounded-full bg-amber-400/60"
             />
             <motion.div
               animate={{ y: [0, -12, 0], opacity: [0.4, 0.7, 0.4] }}
               transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-              className="absolute bottom-1/4 -right-6 w-2 h-2 rounded-full bg-violet-400/60"
+              className="hidden sm:block absolute bottom-1/4 -right-6 w-2 h-2 rounded-full bg-violet-400/60"
             />
 
             {/* Orbiting dots */}
             <motion.div
               animate={{ rotate: 360 }}
               transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-              className="absolute -inset-4"
+              className="absolute -inset-2 sm:-inset-4"
             >
               <motion.div
                 animate={{ rotate: -360 }}
