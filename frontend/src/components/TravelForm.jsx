@@ -30,46 +30,46 @@ function TravelForm({ onSubmit, loading = false }) {
   return (
     <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
       <div className="grid gap-4 md:grid-cols-2">
-        <label className="flex flex-col gap-2 text-sm font-medium text-slate-700">
+        <label className="flex flex-col gap-2 text-sm font-medium text-surface-700">
           Origin
           <input
             type="text"
             value={origin}
             onChange={(event) => setOrigin(event.target.value)}
             placeholder="Enter your starting city"
-            className="rounded-lg border border-slate-300 px-3 py-2 outline-none transition focus:border-slate-500"
+            className="rounded-lg border border-surface-300 px-3 py-2 outline-none transition focus:border-surface-500"
             disabled={loading}
             required
           />
         </label>
 
-        <label className="flex flex-col gap-2 text-sm font-medium text-slate-700">
+        <label className="flex flex-col gap-2 text-sm font-medium text-surface-700">
           Preferences
           <input
             type="text"
             value={preferences}
             onChange={(event) => setPreferences(event.target.value)}
             placeholder="beach, mountains, food"
-            className="rounded-lg border border-slate-300 px-3 py-2 outline-none transition focus:border-slate-500"
+            className="rounded-lg border border-surface-300 px-3 py-2 outline-none transition focus:border-surface-500"
             disabled={loading}
             required
           />
         </label>
 
-        <label className="flex flex-col gap-2 text-sm font-medium text-slate-700">
+        <label className="flex flex-col gap-2 text-sm font-medium text-surface-700">
           Days
           <input
             type="number"
             min="1"
             value={days}
             onChange={(event) => setDays(event.target.value)}
-            className="rounded-lg border border-slate-300 px-3 py-2 outline-none transition focus:border-slate-500"
+            className="rounded-lg border border-surface-300 px-3 py-2 outline-none transition focus:border-surface-500"
             disabled={loading}
             required
           />
         </label>
 
-        <label className="flex flex-col gap-2 text-sm font-medium text-slate-700">
+        <label className="flex flex-col gap-2 text-sm font-medium text-surface-700">
           Budget (optional)
           <input
             type="number"
@@ -77,7 +77,7 @@ function TravelForm({ onSubmit, loading = false }) {
             value={budget}
             onChange={(event) => setBudget(event.target.value)}
             placeholder="Optional budget"
-            className="rounded-lg border border-slate-300 px-3 py-2 outline-none transition focus:border-slate-500"
+            className="rounded-lg border border-surface-300 px-3 py-2 outline-none transition focus:border-surface-500"
             disabled={loading}
           />
         </label>
@@ -86,7 +86,7 @@ function TravelForm({ onSubmit, loading = false }) {
       <button
         type="submit"
         disabled={loading}
-        className="inline-flex items-center justify-center rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+        className="inline-flex items-center justify-center rounded-lg bg-surface-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-surface-800 disabled:cursor-not-allowed disabled:opacity-60"
       >
         {loading ? "Generating..." : "Generate Plan"}
       </button>
