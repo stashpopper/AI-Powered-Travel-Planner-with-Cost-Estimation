@@ -24,11 +24,15 @@ fi
 # Activate virtual environment
 source "$BACKEND_DIR/.venv/bin/activate"
 
-# Install dependencies if requirements.txt is newer than site-packages
-if [ ! -d "$BACKEND_DIR/.venv/lib/python*/site-packages/fastapi" ] || \
-   [ "$BACKEND_DIR/requirements.txt" -nt "$BACKEND_DIR/.venv/lib/python*/site-packages/fastapi/__init__.py" ]; then
+# Install dependencies using the venv's own pip (never system pip, which is
+# externally managed on modern Debian/Ubuntu and would fail with
+# "externally-managed-environment").
+VENV_PYTHON="$BACKEND_DIR/.venv/bin/python"
+if ! "$VENV_PYTHON" -c "import fastapi" >/dev/null 2>&1; then
     echo "  Installing Python dependencies..."
-    pip install -q -r "$BACKEND_DIR/requirements.txt"
+    # Bootstrap pip into the venv if missing, then install.
+    "$VENV_PYTHON" -m ensurepip --upgrade >/dev/null 2>&1 || true
+    "$VENV_PYTHON" -m pip install -q -r "$BACKEND_DIR/requirements.txt"
 fi
 
 # Create .env if it doesn't exist
@@ -40,7 +44,7 @@ fi
 
 # Start backend (must cd into backend dir for the 'app' module to be importable)
 echo "  Starting backend on http://127.0.0.1:8000..."
-cd "$BACKEND_DIR" && nohup uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload > "$PROJECT_DIR/backend.log" 2>&1 &
+cd "$BACKEND_DIR" && nohup "$VENV_PYTHON" -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload > "$PROJECT_DIR/backend.log" 2>&1 &
 BACKEND_PID=$!
 echo "  Backend PID: $BACKEND_PID"
 

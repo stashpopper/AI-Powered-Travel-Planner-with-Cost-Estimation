@@ -47,7 +47,7 @@ class EvaluationService:
         ranked_plans = sorted(
             plans,
             key=lambda plan: (
-                metrics_by_title[plan.title].score,
+                -metrics_by_title[plan.title].score,  # Higher score = better
                 metrics_by_title[plan.title].total_cost,
                 metrics_by_title[plan.title].total_travel_time,
                 -metrics_by_title[plan.title].unique_locations,
@@ -75,10 +75,14 @@ class EvaluationService:
         normalized_cost = total_cost / max_cost if max_cost > 0 else 0.0
         total_travel_time = sum(day.travel_time_hours for day in plan.days)
         unique_locations = len({day.location.strip() for day in plan.days if day.location.strip()})
+        # Lower cost and travel time are better; higher diversity is better.
+        # Normalize travel time to [0, 1] range using a reasonable cap (24h total).
+        max_travel_hours = 24.0
+        normalized_travel = min(total_travel_time / max_travel_hours, 1.0)
         score = (
-            (self.cost_weight * normalized_cost)
-            + (self.travel_weight * total_travel_time)
-            - (self.diversity_weight * unique_locations)
+            -(self.cost_weight * normalized_cost)
+            - (self.travel_weight * normalized_travel)
+            + (self.diversity_weight * unique_locations)
         )
 
         return PlanMetrics(

@@ -1,3 +1,4 @@
+import asyncio
 import os
 from pathlib import Path
 from typing import Any
@@ -18,7 +19,12 @@ class TravelSearchService:
         """Initialize the service with a Tavily API key from args or environment."""
         self.api_key = api_key or os.getenv("TAVILY_API_KEY")
 
-    async def search_places(self, query: str) -> list[dict[str, str]]:
+    async def search_places(
+        self,
+        query: str,
+        search_depth: str = "advanced",
+        max_results: int = 10,
+    ) -> list[dict[str, str]]:
         """Search Tavily and return a normalized list of title, url, and content fields."""
         if not self.api_key:
             return []
@@ -30,8 +36,8 @@ class TravelSearchService:
         payload = {
             "api_key": self.api_key,
             "query": cleaned_query,
-            "search_depth": "basic",
-            "max_results": 5,
+            "search_depth": search_depth,
+            "max_results": max_results,
         }
 
         try:
@@ -43,6 +49,41 @@ class TravelSearchService:
             return []
 
         return self._normalize_results(data)
+
+    async def search_places_multi(
+        self,
+        queries: list[str],
+        search_depth: str = "advanced",
+        max_results: int = 8,
+    ) -> list[dict[str, str]]:
+        """Run several targeted queries and merge + dedupe their results.
+
+        Fan-out search surfaces niche/long-tail places that a single generic
+        query would miss. Results are deduplicated by URL.
+        """
+        if not queries:
+            return []
+
+        merged: list[dict[str, str]] = []
+        seen_urls: set[str] = set()
+
+        results_per_query = await asyncio.gather(
+            *(self.search_places(q, search_depth=search_depth, max_results=max_results) for q in queries),
+            return_exceptions=True,
+        )
+
+        for result in results_per_query:
+            if isinstance(result, Exception) or not isinstance(result, list):
+                continue
+            for item in result:
+                url = item.get("url")
+                if url and url in seen_urls:
+                    continue
+                if url:
+                    seen_urls.add(url)
+                merged.append(item)
+
+        return merged
 
     def _normalize_results(self, data: dict[str, Any]) -> list[dict[str, str]]:
         """Convert Tavily response data into the expected structured result format."""

@@ -30,11 +30,13 @@ class PlaceExtractor:
             [
                 (
                     "system",
-                    "You extract real travel destinations from web search results. "
-                    "Return only destinations that are clearly relevant for trip planning. "
-                    "Ignore irrelevant, promotional, duplicate, or non-destination content. "
-                    "Infer each place type using one of: mountain, beach, forest, city. "
-                    "Group each place under a logical region name.",
+                    "You are a precise travel destination extractor. Extract real, well-known, and lesser-known travel destinations from web search results. "
+                    "Return only destinations that are clearly relevant for trip planning, including specific cities, towns, natural landmarks, and cultural sites. "
+                    "Ignore irrelevant, promotional, duplicate, or non-destination content (e.g., blog posts, generic ads). "
+                    "For Indian destinations (like Manali, Coorg, etc.), use their standard English names as commonly recognized. "
+                    "Infer each place type using one of: mountain, beach, forest, city, town, hill_station. "
+                    "Group each place under a logical region name (e.g., state, province, or district). "
+                    "Ensure the extracted name is specific and accurate; avoid vague terms like 'the city' or 'local market'.",
                 ),
                 (
                     "human",

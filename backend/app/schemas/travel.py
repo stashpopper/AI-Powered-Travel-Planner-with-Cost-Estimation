@@ -55,6 +55,11 @@ class Place(BaseModel):
     name: str
     type: str
     region: str
+    # Optional hierarchy so a niche destination (e.g. Manali) can be the
+    # parent hub while its attractions are day-level locations.
+    parent: str | None = None
+    # "destination" for the user-entered hub, "attraction" for sub-places.
+    kind: str = "attraction"
 
     @field_validator("name", "type", "region")
     @classmethod
@@ -63,6 +68,15 @@ class Place(BaseModel):
         cleaned = value.strip()
         if not cleaned:
             raise ValueError("place fields must not be empty")
+        return cleaned
+
+    @field_validator("kind")
+    @classmethod
+    def validate_kind(cls, value: str) -> str:
+        """Restrict kind to the supported vocabulary."""
+        cleaned = value.strip().lower()
+        if cleaned not in {"destination", "attraction"}:
+            return "attraction"
         return cleaned
 
 
