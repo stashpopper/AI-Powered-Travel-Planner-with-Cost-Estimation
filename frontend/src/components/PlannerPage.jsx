@@ -30,7 +30,7 @@ function PlannerPage() {
     setSelectedPlan(null)
 
     try {
-      const res = await axios.post(apiUrl, payload)
+      const res = await axios.post(apiUrl, payload, { timeout: 180000 })
       setData(res.data)
       if (res.data?.error?.detail) {
         const stage = res.data.error.stage ? `[${res.data.error.stage}] ` : ""

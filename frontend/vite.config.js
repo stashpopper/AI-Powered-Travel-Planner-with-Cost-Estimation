@@ -9,6 +9,8 @@ export default defineConfig({
       '/app/api/v1': {
         target: 'http://localhost:8000',
         changeOrigin: true,
+        timeout: 180000,
+        proxyTimeout: 180000,
       }
     }
   }

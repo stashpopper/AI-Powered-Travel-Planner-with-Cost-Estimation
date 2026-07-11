@@ -8,7 +8,7 @@ from pydantic import BaseModel, Field, field_validator, model_validator
 class TravelRequest(BaseModel):
     """Input payload for generating travel plans."""
 
-    origin: str
+    origin: Optional[str] = Field(default="")
     destination: str
     preferences: list[str]
     budget: Optional[int] = Field(default=None, gt=0)
@@ -16,12 +16,11 @@ class TravelRequest(BaseModel):
 
     @field_validator("origin")
     @classmethod
-    def validate_origin(cls, value: str) -> str:
-        """Ensure the origin is a non-empty string."""
-        cleaned = value.strip()
-        if not cleaned:
-            raise ValueError("origin must not be empty")
-        return cleaned
+    def validate_origin(cls, value: str | None) -> str:
+        """Normalize origin to a stripped string (optional field)."""
+        if value is None:
+            return ""
+        return value.strip()
 
     @field_validator("destination")
     @classmethod
