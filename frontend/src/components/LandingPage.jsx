@@ -2,7 +2,7 @@ import { useState, useRef } from 'react'
 import { motion, useInView, AnimatePresence } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import {
-  Sparkles, MapPin, Heart, Globe, Clock, Wallet,
+  Sparkles, Heart, Globe, Clock, Wallet,
   ArrowRight, Zap, Shield, Compass, Plane, ChevronDown, Check,
   Users, Tent, Building2, Waves,
 } from 'lucide-react'
@@ -271,62 +271,6 @@ function HeroSection() {
           <ChevronDown className="w-6 h-6 text-white/40" />
         </motion.div>
       </a>
-    </section>
-  )
-}
-
-/* ------------------------------------------------------------------ */
-/*  DESTINATION MARQUEE                                                */
-/* ------------------------------------------------------------------ */
-
-function MarqueeStrip() {
-  const places = ['Tokyo', 'Santorini', 'Marrakech', 'Queenstown', 'Lisbon', 'Bali', 'Cusco', 'Reykjavík', 'Amalfi', 'Hanoi', 'Patagonia', 'Kyoto']
-  return (
-    <div className="relative border-y border-surface-200/70 dark:border-surface-800/60 bg-surface-50 dark:bg-surface-950 py-5 overflow-hidden marquee-mask">
-      <div className="flex w-max animate-marquee items-center gap-10">
-        {[...places, ...places].map((p, i) => (
-          <span key={i} className="flex items-center gap-10 whitespace-nowrap">
-            <span className="text-sm font-semibold uppercase tracking-[0.2em] text-surface-400 dark:text-surface-500">{p}</span>
-            <MapPin className="w-3.5 h-3.5 text-indigo-400/50" />
-          </span>
-        ))}
-      </div>
-    </div>
-  )
-}
-
-/* ------------------------------------------------------------------ */
-/*  STATS BAND                                                         */
-/* ------------------------------------------------------------------ */
-
-function StatsSection() {
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: true })
-  const stats = [
-    { value: '12K+', label: 'Trips planned', icon: Plane },
-    { value: '98%', label: 'Satisfaction', icon: Heart },
-    { value: '150+', label: 'Destinations', icon: Globe },
-    { value: '27s', label: 'Avg. generation', icon: Zap },
-  ]
-  return (
-    <section ref={ref} className="relative bg-surface-50 dark:bg-surface-950 border-b border-surface-200/70 dark:border-surface-800/60">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-surface-200/80 dark:divide-surface-800/70">
-          {stats.map((s, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, y: 16 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ delay: i * 0.08, duration: 0.5, ease: EASE }}
-              className="group flex flex-col items-center py-9 text-center"
-            >
-              <s.icon className="mb-3 h-5 w-5 text-indigo-400 transition-transform duration-300 group-hover:scale-110" />
-              <p className="text-3xl sm:text-4xl font-extrabold tracking-tight text-surface-900 dark:text-white">{s.value}</p>
-              <p className="mt-1 text-xs font-medium uppercase tracking-wider text-surface-400 dark:text-surface-500">{s.label}</p>
-            </motion.div>
-          ))}
-        </div>
-      </div>
     </section>
   )
 }
@@ -766,7 +710,7 @@ function HowItWorksSection() {
 }
 
 /* ------------------------------------------------------------------ */
-/*  TESTIMONIALS                                                       */
+/*  FAQ                                                                */
 /* ------------------------------------------------------------------ */
 
 function FaqSection() {
@@ -933,8 +877,6 @@ function LandingPage() {
   return (
     <div className="bg-surface-50 dark:bg-surface-950">
       <HeroSection />
-      <MarqueeStrip />
-      <StatsSection />
       <LiveDemoSection />
       <FeaturesSection />
       <HowItWorksSection />
