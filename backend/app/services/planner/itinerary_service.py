@@ -41,7 +41,7 @@ class ItineraryService:
     def __init__(self, llm: BaseChatModel | None = None) -> None:
         """Initialize the itinerary generator with an injectable chat model."""
         self.llm = llm or init_chat_model(
-            model="mistral-small-latest",
+            model="labs-leanstral-1-5-1",
             model_provider="mistralai",
             temperature=0.4,
             api_key=os.getenv("MISTRAL_API_KEY"),

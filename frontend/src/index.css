@@ -99,4 +99,54 @@
   .animate-spin-slow {
     animation: spin-slow 3s linear infinite;
   }
+
+  /* Animated route path draw */
+  @keyframes draw-path {
+    0% { stroke-dashoffset: 600; }
+    100% { stroke-dashoffset: 0; }
+  }
+
+  .animate-draw-path {
+    stroke-dasharray: 600;
+    animation: draw-path 4s ease-in-out infinite;
+  }
+
+  /* Pulsing map dots */
+  @keyframes pulse-dot {
+    0% { transform: scale(1); opacity: 0.9; }
+    70% { transform: scale(2.6); opacity: 0; }
+    100% { transform: scale(2.6); opacity: 0; }
+  }
+
+  .animate-pulse-dot {
+    animation: pulse-dot 2.4s cubic-bezier(0.2, 0.6, 0.4, 1) infinite;
+    transform-origin: center;
+    transform-box: fill-box;
+  }
+
+  /* Marquee for destination strip */
+  @keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  .animate-marquee {
+    animation: marquee 36s linear infinite;
+  }
+
+  .marquee-mask {
+    mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+  }
+
+  /* Typing caret */
+  @keyframes caret-blink {
+    0%, 45% { opacity: 1; }
+    50%, 95% { opacity: 0; }
+    100% { opacity: 1; }
+  }
+
+  .animate-caret {
+    animation: caret-blink 1s steps(1) infinite;
+  }
 }

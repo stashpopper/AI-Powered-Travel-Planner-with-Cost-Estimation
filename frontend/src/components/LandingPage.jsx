@@ -1,248 +1,328 @@
-import { useState, useEffect, useRef } from 'react'
-import { motion, useInView } from 'framer-motion'
+import { useState, useRef } from 'react'
+import { motion, useInView, AnimatePresence } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import {
-  Sparkles, MapPin, Heart, Globe, Clock, Wallet, Star,
+  Sparkles, MapPin, Heart, Globe, Clock, Wallet,
   ArrowRight, Zap, Shield, Compass, Plane, ChevronDown, Check,
+  Users, Tent, Building2, Waves,
 } from 'lucide-react'
+
+const EASE = [0.16, 1, 0.3, 1]
+
+function SectionHeading({ eyebrow, title, accent, subtitle, align = 'center' }) {
+  const ref = useRef(null)
+  const isInView = useInView(ref, { once: true, margin: '-80px' })
+  const alignCls = align === 'left' ? 'text-left items-start' : 'text-center items-center'
+
+  return (
+    <div ref={ref} className={`flex flex-col ${alignCls} mb-14 lg:mb-20`}>
+      <motion.span
+        initial={{ opacity: 0, y: 12 }}
+        animate={isInView ? { opacity: 1, y: 0 } : {}}
+        transition={{ duration: 0.5, ease: EASE }}
+        className="mb-5 inline-flex items-center gap-2 rounded-full border border-indigo-200/80 dark:border-indigo-500/20 bg-indigo-50 dark:bg-indigo-500/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-indigo-600 dark:text-indigo-300"
+      >
+        <Sparkles className="w-3.5 h-3.5" />
+        {eyebrow}
+      </motion.span>
+      <motion.h2
+        initial={{ opacity: 0, y: 20 }}
+        animate={isInView ? { opacity: 1, y: 0 } : {}}
+        transition={{ delay: 0.1, duration: 0.6, ease: EASE }}
+        className="max-w-2xl text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-surface-900 dark:text-white"
+      >
+        {title} <span className="text-gradient">{accent}</span>
+      </motion.h2>
+      {subtitle && (
+        <motion.p
+          initial={{ opacity: 0, y: 16 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ delay: 0.2, duration: 0.6, ease: EASE }}
+          className="mt-5 max-w-xl text-base sm:text-lg text-surface-500 dark:text-surface-400 leading-relaxed"
+        >
+          {subtitle}
+        </motion.p>
+      )}
+    </div>
+  )
+}
+
+/* ------------------------------------------------------------------ */
+/*  HERO — gradient canvas + live animated SVG route map               */
+/* ------------------------------------------------------------------ */
+
+function LiveMapSVG() {
+  return (
+    <svg viewBox="0 0 520 420" fill="none" className="h-full w-full" aria-hidden="true">
+      {/* Dot grid */}
+      <defs>
+        <pattern id="dotgrid" width="26" height="26" patternUnits="userSpaceOnUse">
+          <circle cx="1.5" cy="1.5" r="1.5" className="fill-white/10" />
+        </pattern>
+        <linearGradient id="routeGrad" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#fbbf24" />
+          <stop offset="50%" stopColor="#a78bfa" />
+          <stop offset="100%" stopColor="#60a5fa" />
+        </linearGradient>
+      </defs>
+      <rect width="520" height="420" rx="24" fill="url(#dotgrid)" />
+
+      {/* Routes */}
+      <path d="M 80 330 C 140 250, 180 240, 250 180 S 380 90, 440 70" stroke="url(#routeGrad)" strokeWidth="2.5" strokeDasharray="6 8" className="animate-draw-path" strokeLinecap="round" />
+      <path d="M 80 330 C 160 320, 240 300, 300 250 S 400 170, 440 70" stroke="url(#routeGrad)" strokeWidth="2" strokeDasharray="5 9" className="animate-draw-path" style={{ animationDelay: '0.8s' }} strokeLinecap="round" />
+      <path d="M 80 330 C 120 300, 150 250, 170 210 S 210 130, 250 180" stroke="url(#routeGrad)" strokeWidth="2" strokeDasharray="4 10" className="animate-draw-path" style={{ animationDelay: '1.6s' }} strokeLinecap="round" />
+
+      {/* Origin hub */}
+      <circle cx="80" cy="330" r="10" className="fill-white/15" />
+      <circle cx="80" cy="330" r="5" className="fill-white" />
+      <circle cx="80" cy="330" r="10" className="stroke-white/60 animate-pulse-dot" strokeWidth="1.5" fill="none" />
+
+      {/* Destination dots */}
+      {[
+        { x: 250, y: 180, delay: '0s' },
+        { x: 440, y: 70, delay: '0.9s' },
+        { x: 170, y: 210, delay: '1.7s' },
+      ].map((d, i) => (
+        <g key={i}>
+          <circle cx={d.x} cy={d.y} r="6" className="fill-amber-300/30" />
+          <circle cx={d.x} cy={d.y} r="3.5" className="fill-amber-300" />
+          <circle cx={d.x} cy={d.y} r="6" className="stroke-amber-300 animate-pulse-dot" style={{ animationDelay: d.delay }} strokeWidth="1.5" fill="none" />
+        </g>
+      ))}
+
+      {/* Traveling plane along main route (auto-rotates to face direction of travel) */}
+      <g>
+        <g transform="rotate(90)">
+          <path d="M0,-7 L2,-1 L8,2 L8,4 L1.5,2.5 L0.5,6 L-0.5,6 L-1.5,2.5 L-8,4 L-8,2 L-2,-1 Z" className="fill-white drop-shadow-lg" />
+        </g>
+        <animateMotion dur="7s" repeatCount="indefinite" rotate="auto" path="M 80 330 C 140 250, 180 240, 250 180 S 380 90, 440 70" />
+      </g>
+
+      {/* City labels */}
+      <g className="fill-white/50 text-[11px]" fontFamily="Inter, sans-serif">
+        <text x="64" y="356">Home</text>
+        <text x="232" y="164">Bali</text>
+        <text x="424" y="52">Kyoto</text>
+        <text x="150" y="196">Osaka</text>
+      </g>
+    </svg>
+  )
+}
 
 function HeroSection() {
   const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, margin: '-100px' })
+  const isInView = useInView(ref, { once: true, margin: '-80px' })
+  const [destination, setDestination] = useState('Bali, Indonesia')
+  const [days, setDays] = useState('7')
+  const [budget, setBudget] = useState('')
 
   return (
-    <section ref={ref} className="relative min-h-screen flex items-center overflow-hidden overflow-x-hidden" style={{overflowX: 'hidden'}}>
-      {/* Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-violet-600 to-purple-700" />
-      <div className="absolute inset-0" style={{
-        backgroundImage: 'linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)',
-        backgroundSize: '60px 60px'
-      }} />
+    <section ref={ref} className="relative min-h-screen flex items-center overflow-hidden bg-gradient-to-br from-indigo-600 via-violet-600 to-purple-700">
+      {/* Fine grid + ambient blobs */}
+      <div
+        className="absolute inset-0 pointer-events-none opacity-40"
+        style={{
+          backgroundImage:
+            'linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)',
+          backgroundSize: '64px 64px',
+          maskImage: 'radial-gradient(ellipse 85% 65% at 50% 40%, black, transparent)',
+          WebkitMaskImage: 'radial-gradient(ellipse 85% 65% at 50% 40%, black, transparent)',
+        }}
+      />
+      <div className="absolute -top-32 -left-24 h-96 w-96 rounded-full bg-blue-400/25 blur-3xl animate-blob pointer-events-none" />
+      <div className="absolute top-1/3 -right-24 h-80 w-80 rounded-full bg-fuchsia-400/20 blur-3xl animate-blob animation-delay-2000 pointer-events-none" />
+      <div className="absolute bottom-0 left-1/4 h-72 w-72 rounded-full bg-amber-300/15 blur-3xl animate-blob animation-delay-4000 pointer-events-none" />
+      <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-surface-50 dark:from-surface-950 to-transparent pointer-events-none" />
 
-      {/* Animated blobs */}
-      <div className="absolute -top-20 -left-20 sm:-top-40 sm:-left-40 w-64 sm:w-96 h-64 sm:h-96 bg-blue-500/30 rounded-full blur-3xl animate-blob" />
-      <div className="absolute top-1/3 -right-10 sm:-right-20 w-56 sm:w-80 h-56 sm:h-80 bg-violet-500/30 rounded-full blur-3xl animate-blob animation-delay-2000" />
-      <div className="absolute bottom-1/4 left-1/4 w-72 h-72 bg-amber-500/20 rounded-full blur-3xl animate-blob animation-delay-4000" />
+      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-32 pb-24 lg:pt-36 lg:pb-28 w-full">
+        <div className="grid lg:grid-cols-2 gap-14 lg:gap-12 items-center">
+          {/* Copy */}
+          <div className="text-center lg:text-left">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={isInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.6, ease: EASE }}
+              className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 backdrop-blur-sm px-4 py-1.5 mb-7"
+            >
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-300 opacity-75 animate-ping" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
+              </span>
+              <span className="text-xs font-semibold uppercase tracking-wider text-indigo-100">AI travel planning, live</span>
+            </motion.div>
 
-      {/* Floating elements */}
-      <motion.div animate={{ y: [0, -15, 0] }} transition={{ duration: 5, repeat: Infinity }} className="absolute top-20 right-[15%]">
-        <Plane className="w-12 h-12 text-white/10 rotate-[-15deg]" />
-      </motion.div>
-      <motion.div animate={{ y: [0, 12, 0] }} transition={{ duration: 4.5, repeat: Infinity, delay: 1 }} className="absolute bottom-32 left-[10%]">
-        <Compass className="w-10 h-10 text-white/10" />
-      </motion.div>
+            <motion.h1
+              initial={{ opacity: 0, y: 28 }}
+              animate={isInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ delay: 0.1, duration: 0.8, ease: EASE }}
+              className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-extrabold leading-[1.05] tracking-tight text-white"
+            >
+              Plan a world-class trip
+              <br />
+              in{' '}
+              <span className="relative inline-block">
+                <span className="bg-gradient-to-r from-amber-200 via-white to-amber-200 bg-clip-text text-transparent">30 seconds</span>
+                <svg className="absolute -bottom-2 left-0 w-full" viewBox="0 0 300 12" fill="none" preserveAspectRatio="none" aria-hidden="true">
+                  <path d="M2 9 C 60 3, 150 3, 298 8" stroke="#fbbf24" strokeWidth="3.5" strokeLinecap="round" className="animate-draw-path" style={{ strokeDasharray: 320 }} />
+                </svg>
+              </span>
+            </motion.h1>
 
-      {/* Content */}
-      <div className="relative mx-auto max-w-7xl px-3 sm:px-6 lg:px-8 py-32 lg:py-40">
-        <div className="grid lg:grid-cols-2 gap-6 sm:gap-12 lg:gap-16 items-center overflow-x-hidden">
-          {/* Left - Text */}
+            <motion.p
+              initial={{ opacity: 0, y: 24 }}
+              animate={isInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ delay: 0.22, duration: 0.7, ease: EASE }}
+              className="mt-7 text-base sm:text-lg lg:text-xl text-indigo-100/90 max-w-xl mx-auto lg:mx-0 leading-relaxed"
+            >
+              Destination, dates, budget, vibe — that's all we need. VoyageAgent
+              builds a complete day-by-day itinerary with real cost estimates.
+            </motion.p>
+
+            {/* Interactive prompt bar */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={isInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ delay: 0.34, duration: 0.6, ease: EASE }}
+              className="mt-9 rounded-2xl border border-white/20 bg-white/10 backdrop-blur-xl p-3 sm:p-4 shadow-2xl shadow-indigo-950/30 max-w-xl mx-auto lg:mx-0"
+            >
+              <div className="flex flex-col sm:flex-row gap-2.5">
+                <div className="relative flex-1">
+                  <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-indigo-200 pointer-events-none" />
+                  <input
+                    value={destination}
+                    onChange={(e) => setDestination(e.target.value)}
+                    placeholder="Where to?"
+                    className="w-full rounded-xl bg-white/10 border border-white/15 pl-10 pr-3 py-3 text-sm font-medium text-white placeholder-indigo-200/60 outline-none transition-colors focus:border-amber-300/60 focus:bg-white/15"
+                  />
+                </div>
+                <div className="flex gap-2.5">
+                  <select
+                    value={days}
+                    onChange={(e) => setDays(e.target.value)}
+                    className="rounded-xl bg-white/10 border border-white/15 px-3 py-3 text-sm font-medium text-indigo-100 outline-none focus:border-amber-300/60 [&>option]:text-surface-900 cursor-pointer"
+                  >
+                    <option value="5">5 days</option>
+                    <option value="7">7 days</option>
+                    <option value="14">14 days</option>
+                  </select>
+                  <div className="relative flex-1 sm:flex-none">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-indigo-200/70 pointer-events-none">$</span>
+                    <input
+                      value={budget}
+                      onChange={(e) => setBudget(e.target.value.replace(/[^0-9]/g, ''))}
+                      inputMode="numeric"
+                      placeholder="Budget"
+                      className="w-full sm:w-24 rounded-xl bg-white/10 border border-white/15 pl-6 pr-2 py-3 text-sm font-medium text-white placeholder-indigo-200/60 outline-none transition-colors focus:border-amber-300/60 focus:bg-white/15"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div className="mt-3 flex items-center justify-between gap-3">
+                <p className="hidden sm:flex items-center gap-1.5 text-[11px] text-indigo-200/70">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                  We'll prefill your trip for you
+                </p>
+                <Link to="/planner" state={{ destination, days, budget }} className="ml-auto">
+                  <button className="group inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-bold text-indigo-700 shadow-lg transition-all hover:-translate-y-0.5 hover:shadow-xl">
+                    Generate trip
+                    <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+                  </button>
+                </Link>
+              </div>
+            </motion.div>
+
+          </div>
+
+          {/* Live map visual */}
           <motion.div
-            initial={{ opacity: 0, y: 40 }}
+            initial={{ opacity: 0, y: 36 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            className="text-center lg:text-left"
+            transition={{ delay: 0.3, duration: 0.9, ease: EASE }}
+            className="relative mx-auto w-full max-w-lg lg:max-w-none"
           >
-            {/* Badge */}
+            <div className="rounded-3xl border border-white/15 bg-white/[0.07] backdrop-blur-xl p-3 shadow-2xl shadow-indigo-950/40">
+              <div className="rounded-2xl overflow-hidden bg-indigo-950/40">
+                <LiveMapSVG />
+              </div>
+            </div>
+
+            {/* Floating cost badge */}
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={isInView ? { opacity: 1, scale: 1 } : {}}
-              transition={{ delay: 0.2, duration: 0.5 }}
-              className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 backdrop-blur-sm px-4 py-1.5 mb-8"
+              transition={{ delay: 1.1, duration: 0.6, ease: EASE }}
+              className="absolute -right-2 sm:-right-6 bottom-10 flex items-center gap-3 rounded-2xl border border-emerald-300/30 bg-emerald-400/10 backdrop-blur-xl px-4 py-3 shadow-2xl shadow-indigo-950/40"
             >
-              <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-              <span className="text-xs font-semibold uppercase tracking-wider text-indigo-100">AI-Powered Travel Planning</span>
-            </motion.div>
-
-            {/* Headline */}
-            <motion.h1
-              initial={{ opacity: 0, y: 30 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ delay: 0.3, duration: 0.7 }}
-              className="text-5xl sm:text-6xl lg:text-7xl font-bold leading-[1.1] tracking-tight text-white mb-6"
-            >
-              Your Dream Trip,
-              <br />
-              <span className="bg-gradient-to-r from-white via-amber-200 to-white bg-clip-text text-transparent">Designed by AI</span>
-            </motion.h1>
-
-            {/* Subheadline */}
-            <motion.p
-              initial={{ opacity: 0, y: 30 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ delay: 0.4, duration: 0.7 }}
-              className="text-lg sm:text-xl text-indigo-100 max-w-xl mx-auto lg:mx-0 mb-10 leading-relaxed"
-            >
-              Tell us where you want to go, what you love, and how long you'll be. We'll craft a detailed, budget-friendly itinerary — in seconds.
-            </motion.p>
-
-            {/* CTAs */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ delay: 0.5, duration: 0.6 }}
-              className="flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start"
-            >
-              <Link to="/planner">
-                <button className="group relative inline-flex items-center gap-2 rounded-full bg-white px-8 py-3.5 text-base font-semibold text-indigo-700 shadow-lg shadow-indigo-900/30 transition-all hover:shadow-xl hover:-translate-y-0.5">
-                  Start Planning Your Trip
-                  <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-                </button>
-              </Link>
-              <a href="#features" className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-8 py-3.5 text-base font-medium text-white backdrop-blur-sm transition-all hover:bg-white/20">
-                See How It Works
-                <ChevronDown className="w-4 h-4" />
-              </a>
-            </motion.div>
-
-            {/* Social proof */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={isInView ? { opacity: 1 } : {}}
-              transition={{ delay: 0.7, duration: 0.6 }}
-              className="mt-10 flex items-center gap-6 justify-center lg:justify-start"
-            >
-              <div className="flex -space-x-2">
-                <div className="w-8 h-8 rounded-full border-2 border-indigo-700 bg-gradient-to-br from-blue-400 to-violet-500" />
-                <div className="w-8 h-8 rounded-full border-2 border-indigo-700 bg-gradient-to-br from-amber-400 to-orange-500" />
-                <div className="w-8 h-8 rounded-full border-2 border-indigo-700 bg-gradient-to-br from-emerald-400 to-teal-500" />
-                <div className="w-8 h-8 rounded-full border-2 border-indigo-700 bg-gradient-to-br from-pink-400 to-rose-500" />
-                <div className="w-8 h-8 rounded-full border-2 border-indigo-700 bg-gradient-to-br from-cyan-400 to-blue-500" />
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-400/20">
+                <Wallet className="w-4 h-4 text-emerald-300" />
               </div>
-              <div>
-                <p className="text-sm font-semibold text-white">12,000+ trips planned</p>
-                <div className="flex items-center gap-0.5">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                  ))}
-                  <span className="text-xs text-indigo-200 ml-1">4.9/5</span>
-                </div>
+              <div className="leading-tight">
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-emerald-200/80">Est. total</p>
+                <p className="text-base font-bold text-emerald-200">$1,847</p>
               </div>
-            </motion.div>
-          </motion.div>
-
-          {/* Right - Product Visual */}
-          <motion.div
-            initial={{ opacity: 0, x: 40 }}
-            animate={isInView ? { opacity: 1, x: 0 } : {}}
-            transition={{ delay: 0.4, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            className="relative mx-auto max-w-[90vw] sm:max-w-none"
-          >
-            {/* Main glass card */}
-            <div className="relative rounded-2xl border border-white/20 bg-white/10 backdrop-blur-xl shadow-2xl overflow-hidden max-w-[90vw] sm:max-w-full p-3 sm:p-6">
-              {/* Header */}
-              <div className="flex items-center gap-3 mb-5">
-                <div className="flex gap-1.5">
-                  <div className="w-3 h-3 rounded-full bg-red-400" />
-                  <div className="w-3 h-3 rounded-full bg-amber-400" />
-                  <div className="w-3 h-3 rounded-full bg-emerald-400" />
-                </div>
-                <span className="text-xs text-indigo-200 font-medium ml-2">Your Trip — Bali, 7 Days</span>
-              </div>
-
-              {/* AI typing indicator */}
-              <div className="flex items-center gap-2 mb-4">
-                <Compass className="w-4 h-4 text-blue-300 animate-spin-slow" />
-                <span className="text-xs text-indigo-200">AI is generating your itinerary...</span>
-              </div>
-
-              {/* Itinerary items */}
-              <div className="space-y-3">
-                {[
-                  { day: 'Day 1', location: 'Ubud — Rice Terraces & Monkey Forest', time: '9:00 AM' },
-                  { day: 'Day 2', location: 'Seminyak — Beach Clubs & Sunset', time: '6:30 PM' },
-                  { day: 'Day 3', location: 'Uluwatu — Temple & Cliff Dining', time: '5:00 PM' },
-                  { day: 'Day 4', location: 'Canggu — Surf & Cafés', time: '10:00 AM' },
-                ].map((item, i) => (
-                  <motion.div
-                    key={i}
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={isInView ? { opacity: 1, x: 0 } : {}}
-                    transition={{ delay: i * 0.2 + 0.6 }}
-                    className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/10"
-                  >
-                    <div className="w-10 h-10 rounded-lg bg-blue-400/20 flex items-center justify-center flex-shrink-0">
-                      <Plane className="w-4 h-4 text-blue-200" />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-xs font-medium text-blue-200">{item.day}</p>
-                      <p className="text-sm text-white truncate">{item.location}</p>
-                    </div>
-                    <span className="ml-auto text-xs text-indigo-300 flex-shrink-0">{item.time}</span>
-                  </motion.div>
-                ))}
-              </div>
-
-              {/* Cost badge */}
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={isInView ? { opacity: 1, scale: 1 } : {}}
-                transition={{ delay: 1.4 }}
-                className="mt-4 flex items-center justify-between p-3 rounded-xl bg-emerald-400/10 border border-emerald-400/20"
-              >
-                <span className="text-sm font-medium text-emerald-200">Total estimated cost</span>
-                <span className="text-lg font-bold text-emerald-300">$1,847</span>
-              </motion.div>
-            </div>
-
-            {/* Floating badges */}
-            <motion.div
-              animate={{ y: [0, -8, 0] }}
-              transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-              className="absolute -top-2 -left-2 sm:-top-4 sm:-left-4 w-12 h-12 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 shadow-lg flex items-center justify-center"
-            >
-              <Plane className="w-5 h-5 sm:w-7 sm:h-7 text-white -rotate-12" />
-            </motion.div>
-
-            <motion.div
-              animate={{ y: [0, 6, 0] }}
-              transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
-              className="absolute -bottom-2 -right-2 sm:-bottom-3 sm:-right-3 w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-500 shadow-lg flex items-center justify-center"
-            >
-              <span className="text-xs sm:text-sm font-bold text-white">$</span>
             </motion.div>
           </motion.div>
         </div>
       </div>
 
-      {/* Scroll indicator */}
-      <motion.div
-        animate={{ y: [0, 8, 0] }}
-        transition={{ duration: 2, repeat: Infinity }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2"
-      >
-        <ChevronDown className="w-6 h-6 text-white/30" />
-      </motion.div>
+      {/* Scroll cue */}
+      <a href="#features" aria-label="Scroll to features" className="absolute bottom-7 left-1/2 -translate-x-1/2 z-10">
+        <motion.div animate={{ y: [0, 8, 0] }} transition={{ duration: 2, repeat: Infinity }}>
+          <ChevronDown className="w-6 h-6 text-white/40" />
+        </motion.div>
+      </a>
     </section>
   )
 }
 
-// Stats Section
+/* ------------------------------------------------------------------ */
+/*  DESTINATION MARQUEE                                                */
+/* ------------------------------------------------------------------ */
+
+function MarqueeStrip() {
+  const places = ['Tokyo', 'Santorini', 'Marrakech', 'Queenstown', 'Lisbon', 'Bali', 'Cusco', 'Reykjavík', 'Amalfi', 'Hanoi', 'Patagonia', 'Kyoto']
+  return (
+    <div className="relative border-y border-surface-200/70 dark:border-surface-800/60 bg-surface-50 dark:bg-surface-950 py-5 overflow-hidden marquee-mask">
+      <div className="flex w-max animate-marquee items-center gap-10">
+        {[...places, ...places].map((p, i) => (
+          <span key={i} className="flex items-center gap-10 whitespace-nowrap">
+            <span className="text-sm font-semibold uppercase tracking-[0.2em] text-surface-400 dark:text-surface-500">{p}</span>
+            <MapPin className="w-3.5 h-3.5 text-indigo-400/50" />
+          </span>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+/* ------------------------------------------------------------------ */
+/*  STATS BAND                                                         */
+/* ------------------------------------------------------------------ */
+
 function StatsSection() {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true })
-
   const stats = [
-    { value: '12K+', label: 'Trips Planned', icon: Plane },
-    { value: '98%', label: 'Satisfaction Rate', icon: Heart },
+    { value: '12K+', label: 'Trips planned', icon: Plane },
+    { value: '98%', label: 'Satisfaction', icon: Heart },
     { value: '150+', label: 'Destinations', icon: Globe },
-    { value: '4.9', label: 'Average Rating', icon: Star },
+    { value: '27s', label: 'Avg. generation', icon: Zap },
   ]
-
   return (
-    <section ref={ref} className="relative py-20 bg-gradient-to-b from-indigo-600 to-indigo-800">
+    <section ref={ref} className="relative bg-surface-50 dark:bg-surface-950 border-b border-surface-200/70 dark:border-surface-800/60">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-          {stats.map((stat, i) => (
+        <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-surface-200/80 dark:divide-surface-800/70">
+          {stats.map((s, i) => (
             <motion.div
               key={i}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 16 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ delay: i * 0.1, duration: 0.5 }}
-              className="text-center"
+              transition={{ delay: i * 0.08, duration: 0.5, ease: EASE }}
+              className="group flex flex-col items-center py-9 text-center"
             >
-              <stat.icon className="w-8 h-8 text-white/50 mx-auto mb-3" />
-              <p className="text-4xl font-bold text-white tracking-tight">{stat.value}</p>
-              <p className="mt-1 text-sm text-indigo-100 font-medium">{stat.label}</p>
+              <s.icon className="mb-3 h-5 w-5 text-indigo-400 transition-transform duration-300 group-hover:scale-110" />
+              <p className="text-3xl sm:text-4xl font-extrabold tracking-tight text-surface-900 dark:text-white">{s.value}</p>
+              <p className="mt-1 text-xs font-medium uppercase tracking-wider text-surface-400 dark:text-surface-500">{s.label}</p>
             </motion.div>
           ))}
         </div>
@@ -251,288 +331,432 @@ function StatsSection() {
   )
 }
 
-// Features Section
+/* ------------------------------------------------------------------ */
+/*  LIVE DEMO — tabbed product experience                              */
+/* ------------------------------------------------------------------ */
+
+const DEMO_MODES = [
+  {
+    id: 'beach',
+    label: 'Beach escape',
+    icon: Waves,
+    trip: 'Bali · 7 days · $$ Mid',
+    items: [
+      { t: 'Day 1', p: 'Ubud — rice terraces & monkey forest', cost: '$184' },
+      { t: 'Day 3', p: 'Uluwatu — cliff temple & seafood grill', cost: '$212' },
+      { t: 'Day 5', p: 'Nusa Penida — island hop & snorkel', cost: '$296' },
+    ],
+    total: '$1,847',
+    bars: [
+      { label: 'Stays', pct: 46, color: 'bg-indigo-500' },
+      { label: 'Food', pct: 24, color: 'bg-emerald-500' },
+      { label: 'Transit', pct: 18, color: 'bg-amber-500' },
+      { label: 'Activities', pct: 12, color: 'bg-pink-500' },
+    ],
+  },
+  {
+    id: 'city',
+    label: 'City break',
+    icon: Building2,
+    trip: 'Tokyo · 5 days · $$$ Luxe',
+    items: [
+      { t: 'Day 1', p: 'Shibuya — crossing, izakaya crawl', cost: '$231' },
+      { t: 'Day 3', p: 'TeamLab + Ginza private chef', cost: '$418' },
+      { t: 'Day 4', p: 'Day trip: Kamakura & Enoden coast', cost: '$164' },
+    ],
+    total: '$2,692',
+    bars: [
+      { label: 'Stays', pct: 52, color: 'bg-indigo-500' },
+      { label: 'Food', pct: 26, color: 'bg-emerald-500' },
+      { label: 'Transit', pct: 10, color: 'bg-amber-500' },
+      { label: 'Activities', pct: 12, color: 'bg-pink-500' },
+    ],
+  },
+  {
+    id: 'adventure',
+    label: 'Adventure',
+    icon: Tent,
+    trip: 'Patagonia · 10 days · $$ Mid',
+    items: [
+      { t: 'Day 2', p: 'Torres del Paine — base trek', cost: '$226' },
+      { t: 'Day 5', p: 'Perito Moreno — glacier crossing', cost: '$148' },
+      { t: 'Day 8', p: 'Horseback ride + estancia dinner', cost: '$191' },
+    ],
+    total: '$3,405',
+    bars: [
+      { label: 'Stays', pct: 38, color: 'bg-indigo-500' },
+      { label: 'Food', pct: 18, color: 'bg-emerald-500' },
+      { label: 'Transit', pct: 26, color: 'bg-amber-500' },
+      { label: 'Activities', pct: 18, color: 'bg-pink-500' },
+    ],
+  },
+]
+
+function LiveDemoSection() {
+  const ref = useRef(null)
+  const isInView = useInView(ref, { once: true, margin: '-80px' })
+  const [mode, setMode] = useState(DEMO_MODES[0].id)
+  const active = DEMO_MODES.find((m) => m.id === mode) || DEMO_MODES[0]
+
+  return (
+    <section id="demo" ref={ref} className="relative overflow-hidden bg-surface-50 dark:bg-surface-950 py-24 lg:py-32">
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-gradient-to-b from-indigo-200/40 dark:from-indigo-500/10 to-transparent rounded-full blur-3xl pointer-events-none" />
+
+      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <SectionHeading
+          eyebrow="Live preview"
+          title="Three vibes,"
+          accent="one engine"
+          subtitle="Pick a travel style — watch the itinerary and budget rebuild themselves. This is exactly what the planner generates for you."
+        />
+
+        <div className="grid lg:grid-cols-5 gap-10 lg:gap-14 items-start">
+          {/* Left: sticky controls + copy */}
+          <motion.div
+            initial={{ opacity: 0, x: -24 }}
+            animate={isInView ? { opacity: 1, x: 0 } : {}}
+            transition={{ duration: 0.7, ease: EASE }}
+            className="lg:col-span-2 lg:sticky lg:top-28"
+          >
+            <div className="flex lg:flex-col gap-2.5">
+              {DEMO_MODES.map((m) => (
+                <button
+                  key={m.id}
+                  onClick={() => setMode(m.id)}
+                  className={`group flex items-center gap-3.5 rounded-2xl border px-5 py-4 text-left transition-all duration-300 ${
+                    mode === m.id
+                      ? 'border-indigo-300 dark:border-indigo-500/50 bg-white dark:bg-surface-900 shadow-premium'
+                      : 'border-surface-200/80 dark:border-surface-800/60 bg-white/60 dark:bg-surface-900/40 hover:border-indigo-200 dark:hover:border-indigo-500/30'
+                  }`}
+                >
+                  <div className={`flex h-11 w-11 items-center justify-center rounded-xl transition-colors ${
+                    mode === m.id ? 'bg-indigo-600 text-white' : 'bg-surface-100 dark:bg-surface-800 text-surface-500 dark:text-surface-400'
+                  }`}>
+                    <m.icon className="w-5 h-5" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-bold text-surface-900 dark:text-white">{m.label}</p>
+                    <p className="text-xs text-surface-400 dark:text-surface-500">{m.trip}</p>
+                  </div>
+                  <ArrowRight className={`w-4 h-4 transition-all ${mode === m.id ? 'text-indigo-500' : 'text-surface-300 dark:text-surface-600 group-hover:translate-x-0.5'}`} />
+                </button>
+              ))}
+            </div>
+
+            <div className="mt-8 hidden lg:block rounded-2xl border border-indigo-200/60 dark:border-indigo-500/20 bg-indigo-50/60 dark:bg-indigo-500/5 p-5">
+              <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-300">
+                <Sparkles className="w-4 h-4" /> What you get
+              </p>
+              <ul className="mt-3 space-y-2">
+                {['Day-by-day schedule', 'Real cost estimates', 'Local picks & timing', 'Optimized routing'].map((t) => (
+                  <li key={t} className="flex items-center gap-2 text-sm text-surface-600 dark:text-surface-300">
+                    <Check className="w-4 h-4 text-emerald-500 shrink-0" /> {t}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </motion.div>
+
+          {/* Right: live result card */}
+          <motion.div
+            initial={{ opacity: 0, y: 32 }}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ delay: 0.15, duration: 0.7, ease: EASE }}
+            className="lg:col-span-3"
+          >
+            <div className="relative rounded-3xl border border-surface-200/80 dark:border-surface-800/60 bg-white dark:bg-surface-900 shadow-premium-lg overflow-hidden">
+              {/* Card header */}
+              <div className="flex items-center justify-between border-b border-surface-100 dark:border-surface-800 px-6 py-4">
+                <div className="flex items-center gap-3">
+                  <div className="flex gap-1.5">
+                    <div className="h-3 w-3 rounded-full bg-red-400/80" />
+                    <div className="h-3 w-3 rounded-full bg-amber-400/80" />
+                    <div className="h-3 w-3 rounded-full bg-emerald-400/80" />
+                  </div>
+                  <span className="text-xs font-semibold text-surface-400 dark:text-surface-500">{active.trip}</span>
+                </div>
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 dark:bg-emerald-500/10 px-3 py-1 text-[11px] font-bold text-emerald-600 dark:text-emerald-300">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" /> Generated
+                </span>
+              </div>
+
+              <div className="p-6">
+                {/* Itinerary rows */}
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={active.id}
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -12 }}
+                    transition={{ duration: 0.35, ease: EASE }}
+                  >
+                    <div className="space-y-3">
+                      {active.items.map((item, i) => (
+                        <motion.div
+                          key={i}
+                          initial={{ opacity: 0, x: 18 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0.08 + i * 0.08, duration: 0.4, ease: EASE }}
+                          className="flex items-center gap-4 rounded-xl border border-surface-100 dark:border-surface-800 bg-surface-50/60 dark:bg-surface-950/40 p-4"
+                        >
+                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-50 dark:bg-indigo-500/10">
+                            <Compass className="w-4 h-4 text-indigo-500 dark:text-indigo-400" />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="text-[11px] font-bold uppercase tracking-wider text-indigo-500 dark:text-indigo-400">{item.t}</p>
+                            <p className="truncate text-sm font-medium text-surface-800 dark:text-surface-200">{item.p}</p>
+                          </div>
+                          <span className="shrink-0 font-mono text-sm font-bold text-surface-600 dark:text-surface-300">{item.cost}</span>
+                        </motion.div>
+                      ))}
+                    </div>
+
+                    {/* Budget bars */}
+                    <div className="mt-5 rounded-xl border border-surface-100 dark:border-surface-800 p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <p className="text-xs font-bold uppercase tracking-wider text-surface-400 dark:text-surface-500">Budget breakdown</p>
+                        <p className="text-base font-extrabold text-surface-900 dark:text-white">{active.total}</p>
+                      </div>
+                      <div className="flex h-2.5 gap-1 overflow-hidden rounded-full">
+                        {active.bars.map((b) => (
+                          <motion.div
+                            key={b.label}
+                            initial={{ width: 0 }}
+                            animate={{ width: `${b.pct}%` }}
+                            transition={{ delay: 0.3, duration: 0.7, ease: EASE }}
+                            className={`h-full ${b.color}`}
+                          />
+                        ))}
+                      </div>
+                      <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1.5">
+                        {active.bars.map((b) => (
+                          <span key={b.label} className="flex items-center gap-1.5 text-[11px] text-surface-500 dark:text-surface-400">
+                            <span className={`h-2 w-2 rounded-full ${b.color}`} /> {b.label} · {b.pct}%
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </motion.div>
+                </AnimatePresence>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ------------------------------------------------------------------ */
+/*  FEATURES — sticky two-column with numbered rows                    */
+/* ------------------------------------------------------------------ */
+
 function FeaturesSection() {
   const ref = useRef(null)
-  const isInView = useInView(ref, { once: true })
+  const isInView = useInView(ref, { once: true, margin: '-80px' })
 
   const features = [
     {
-      title: 'AI-Powered Itineraries',
-      description: 'Our AI analyzes your preferences, budget, and timing to create personalized day-by-day travel plans.',
+      n: '01',
+      title: 'AI-powered itineraries',
+      desc: 'Your preferences, budget and timing become a sequenced day-by-day plan — with local timing windows built in.',
       icon: Sparkles,
-      gradient: 'from-indigo-500 to-violet-600',
-      bgLight: 'bg-indigo-50 dark:bg-indigo-950/40',
-      iconColor: 'text-indigo-600 dark:text-indigo-400',
-      number: '01',
+      tint: 'bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-300',
     },
     {
-      title: 'Smart Budget Tracking',
-      description: 'Get real-time cost estimates for travel, food, and accommodation that adapt to your budget.',
+      n: '02',
+      title: 'Smart budget tracking',
+      desc: 'Real-time cost estimates for stays, food and transit — rebalanced automatically to your target.',
       icon: Wallet,
-      gradient: 'from-emerald-500 to-teal-600',
-      bgLight: 'bg-emerald-50 dark:bg-emerald-950/40',
-      iconColor: 'text-emerald-600 dark:text-emerald-400',
-      number: '02',
+      tint: 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-300',
     },
     {
-      title: 'Time Optimization',
-      description: 'Minimize travel time between attractions with AI-optimized routing and scheduling.',
+      n: '03',
+      title: 'Time optimization',
+      desc: 'AI routing kills dead mileage between stops. More trip, less transfer.',
       icon: Clock,
-      gradient: 'from-amber-500 to-orange-600',
-      bgLight: 'bg-amber-50 dark:bg-amber-950/40',
-      iconColor: 'text-amber-600 dark:text-amber-400',
-      number: '03',
+      tint: 'bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-300',
     },
     {
-      title: 'Curated Experiences',
-      description: 'Discover hidden gems and local favorites you would never find on your own.',
+      n: '04',
+      title: 'Curated experiences',
+      desc: 'Hidden gems and local favorites the algorithms of big booking sites miss.',
       icon: MapPin,
-      gradient: 'from-pink-500 to-rose-600',
-      bgLight: 'bg-pink-50 dark:bg-pink-950/40',
-      iconColor: 'text-pink-600 dark:text-pink-400',
-      number: '04',
+      tint: 'bg-pink-50 text-pink-600 dark:bg-pink-500/10 dark:text-pink-300',
     },
     {
-      title: 'Safety First',
-      description: 'Built-in safety alerts and travel advisories keep you informed wherever you go.',
+      n: '05',
+      title: 'Safety first',
+      desc: 'Travel advisories and alerts folded into the plan, so you know before you go.',
       icon: Shield,
-      gradient: 'from-sky-500 to-blue-600',
-      bgLight: 'bg-sky-50 dark:bg-sky-950/40',
-      iconColor: 'text-sky-600 dark:text-sky-400',
-      number: '05',
+      tint: 'bg-sky-50 text-sky-600 dark:bg-sky-500/10 dark:text-sky-300',
     },
     {
-      title: 'Instant Results',
-      description: 'Get your complete travel plan in under 30 seconds — no waiting, no planning stress.',
+      n: '06',
+      title: 'Instant results',
+      desc: 'A complete, bookable plan in under 30 seconds. No spreadsheet, no tab overload.',
       icon: Zap,
-      gradient: 'from-violet-500 to-purple-600',
-      bgLight: 'bg-violet-50 dark:bg-violet-950/40',
-      iconColor: 'text-violet-600 dark:text-violet-400',
-      number: '06',
+      tint: 'bg-violet-50 text-violet-600 dark:bg-violet-500/10 dark:text-violet-300',
     },
   ]
 
   return (
-    <section id="features" ref={ref} className="relative py-24 lg:py-32 bg-surface-50 dark:bg-surface-950 overflow-hidden">
-      {/* Subtle background decoration */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-gradient-to-b from-indigo-100/40 dark:from-indigo-950/20 to-transparent rounded-full blur-3xl pointer-events-none" />
-
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative">
-        {/* Section Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6 }}
-          className="text-center max-w-2xl mx-auto mb-20"
-        >
-          <motion.span
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={isInView ? { opacity: 1, scale: 1 } : {}}
-            transition={{ delay: 0.1, duration: 0.5 }}
-            className="inline-flex items-center gap-2 rounded-full border border-indigo-200/80 dark:border-indigo-800/50 bg-indigo-50 dark:bg-indigo-950/50 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 mb-6 backdrop-blur-sm"
-          >
-            <Sparkles className="w-3.5 h-3.5" />
-            Features
-          </motion.span>
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ delay: 0.2, duration: 0.6 }}
-            className="text-3xl sm:text-4xl lg:text-5xl font-bold text-surface-900 dark:text-white tracking-tight"
-          >
-            Everything you need for the
-            <span className="text-gradient"> perfect trip</span>
-          </motion.h2>
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ delay: 0.3, duration: 0.6 }}
-            className="mt-5 text-lg text-surface-500 dark:text-surface-400 leading-relaxed"
-          >
-            From AI-powered planning to budget tracking, VoyageAgent has every tool you need to travel smarter.
-          </motion.p>
-        </motion.div>
-
-        {/* Features Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-6">
-          {features.map((feature, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, y: 30 }}
+    <section id="features" ref={ref} className="relative bg-surface-100 dark:bg-surface-900/50 py-24 lg:py-32 overflow-hidden">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="grid lg:grid-cols-2 gap-14 lg:gap-20 items-start">
+          {/* Sticky left */}
+          <div className="lg:sticky lg:top-28">
+            <motion.span
+              initial={{ opacity: 0, y: 12 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ delay: i * 0.1 + 0.35, duration: 0.5 }}
-              whileHover={{ y: -4 }}
-              className="group relative rounded-2xl bg-white dark:bg-surface-900 shadow-sm ring-1 ring-surface-200/80 dark:ring-surface-800/50 p-7 lg:p-8 transition-all duration-300 hover:shadow-xl hover:shadow-indigo-100/50 dark:hover:shadow-indigo-950/30 hover:ring-indigo-200/60 dark:hover:ring-indigo-800/40"
+              transition={{ duration: 0.5, ease: EASE }}
+              className="inline-flex items-center gap-2 rounded-full border border-indigo-200/80 dark:border-indigo-500/20 bg-indigo-50 dark:bg-indigo-500/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-indigo-600 dark:text-indigo-300"
             >
-              {/* Hover gradient overlay */}
-              <div className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} opacity-0 group-hover:opacity-[0.03] transition-opacity duration-500 rounded-2xl`} />
-
-              {/* Number badge */}
-              <div className="absolute top-6 right-7 text-[11px] font-mono font-bold text-surface-200 dark:text-surface-800 tracking-widest group-hover:text-surface-300 dark:group-hover:text-surface-700 transition-colors">
-                {feature.number}
+              <Sparkles className="w-3.5 h-3.5" /> Features
+            </motion.span>
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              animate={isInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ delay: 0.1, duration: 0.6, ease: EASE }}
+              className="mt-6 text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-surface-900 dark:text-white"
+            >
+              Everything for the
+              <br />
+              <span className="text-gradient">perfect trip.</span>
+            </motion.h2>
+            <motion.p
+              initial={{ opacity: 0, y: 16 }}
+              animate={isInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ delay: 0.2, duration: 0.6, ease: EASE }}
+              className="mt-5 text-base sm:text-lg text-surface-500 dark:text-surface-400 leading-relaxed max-w-md"
+            >
+              Six capabilities, one promise: your trip gets planned better and
+              faster than any spreadsheet ever could.
+            </motion.p>
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={isInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ delay: 0.3, duration: 0.6, ease: EASE }}
+              className="mt-8 hidden lg:flex items-center gap-3 rounded-2xl border border-surface-200/80 dark:border-surface-800/60 bg-white dark:bg-surface-900 p-4 shadow-sm max-w-sm"
+            >
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600">
+                <Plane className="w-5 h-5 text-white" />
               </div>
-
-              {/* Icon container */}
-              <div className={`relative z-10 inline-flex items-center justify-center w-[52px] h-[52px] rounded-2xl ${feature.bgLight} mb-6 group-hover:scale-110 transition-transform duration-300`}>
-                <feature.icon className={`w-6 h-6 ${feature.iconColor}`} />
+              <div>
+                <p className="text-sm font-bold text-surface-900 dark:text-white">Ready when you are</p>
+                <p className="text-xs text-surface-400 dark:text-surface-500">Free · No card · 30 seconds</p>
               </div>
-
-              {/* Content */}
-              <div className="relative z-10">
-                <h3 className="text-lg font-bold text-surface-900 dark:text-white mb-3">
-                  {feature.title}
-                </h3>
-                <p className="text-sm text-surface-500 dark:text-surface-400 leading-relaxed">
-                  {feature.description}
-                </p>
-              </div>
-
-              {/* Bottom accent line */}
-              <div className={`absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r ${feature.gradient} rounded-b-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
             </motion.div>
-          ))}
+          </div>
+
+          {/* Right: feature rows */}
+          <div className="space-y-4">
+            {features.map((f, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 28 }}
+                animate={isInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ delay: 0.15 + i * 0.08, duration: 0.6, ease: EASE }}
+                whileHover={{ x: 6 }}
+                className="group relative flex items-start gap-5 rounded-2xl border border-surface-200/80 dark:border-surface-800/60 bg-white dark:bg-surface-900 p-6 transition-all duration-300 hover:shadow-premium hover:border-indigo-200 dark:hover:border-indigo-500/30"
+              >
+                <span className="absolute right-6 top-5 text-xs font-mono font-bold text-surface-200 dark:text-surface-700 group-hover:text-indigo-300 dark:group-hover:text-indigo-500/70 transition-colors">{f.n}</span>
+                <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${f.tint} transition-transform duration-300 group-hover:scale-110`}>
+                  <f.icon className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-surface-900 dark:text-white">{f.title}</h3>
+                  <p className="mt-1.5 text-sm leading-relaxed text-surface-500 dark:text-surface-400">{f.desc}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </div>
     </section>
   )
 }
 
-// How It Works Section
+/* ------------------------------------------------------------------ */
+/*  HOW IT WORKS — vertical timeline                                   */
+/* ------------------------------------------------------------------ */
+
 function HowItWorksSection() {
   const ref = useRef(null)
-  const isInView = useInView(ref, { once: true })
+  const isInView = useInView(ref, { once: true, margin: '-80px' })
 
   const steps = [
     {
-      title: 'Tell Us Your Vibe',
-      description: 'Share your destination, travel style, and budget. The more details, the better — but we work with whatever you give us.',
-      icon: Sparkles,
-      gradient: 'from-indigo-500 to-violet-600',
-      bgLight: 'bg-indigo-50 dark:bg-indigo-950/40',
-      iconColor: 'text-indigo-600 dark:text-indigo-400',
-      number: '01',
+      title: 'Tell us your vibe',
+      desc: 'Destination, dates, budget, pace. A sentence or a paragraph — we adapt to whatever you give us.',
+      icon: Users,
+      tag: 'Input · 30 seconds',
     },
     {
-      title: 'AI Does the Magic',
-      description: 'Our AI analyzes your preferences against thousands of travel patterns to craft an optimized itinerary.',
+      title: 'AI does the deep work',
+      desc: 'Thousands of routing, timing and cost patterns, matched to your preferences while you grab a coffee.',
       icon: Compass,
-      gradient: 'from-violet-500 to-purple-600',
-      bgLight: 'bg-violet-50 dark:bg-violet-950/40',
-      iconColor: 'text-violet-600 dark:text-violet-400',
-      number: '02',
+      tag: 'Engine · under 30 seconds',
     },
     {
-      title: 'Get Your Trip',
-      description: 'Receive a detailed, day-by-day travel plan with costs, activities, and local recommendations — ready to go.',
-      icon: Sparkles,
-      gradient: 'from-amber-500 to-orange-600',
-      bgLight: 'bg-amber-50 dark:bg-amber-950/40',
-      iconColor: 'text-amber-600 dark:text-amber-400',
-      number: '03',
+      title: 'Land with a plan',
+      desc: 'A day-by-day itinerary with costs, addresses and local recommendations. Ready to go — adjust anything.',
+      icon: Plane,
+      tag: 'Output · your trip',
     },
   ]
 
   return (
-    <section id="how-it-works" ref={ref} className="relative py-24 lg:py-32 bg-surface-50 dark:bg-surface-950 overflow-hidden">
-      {/* Subtle background decoration */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-gradient-to-b from-violet-100/40 dark:from-violet-950/20 to-transparent rounded-full blur-3xl pointer-events-none" />
+    <section id="how-it-works" ref={ref} className="relative bg-surface-50 dark:bg-surface-950 py-24 lg:py-32 overflow-hidden">
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-gradient-to-b from-violet-200/40 dark:from-violet-500/10 to-transparent rounded-full blur-3xl pointer-events-none" />
 
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative">
-        {/* Section Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6 }}
-          className="text-center max-w-2xl mx-auto mb-20"
-        >
-          <motion.span
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={isInView ? { opacity: 1, scale: 1 } : {}}
-            transition={{ delay: 0.1, duration: 0.5 }}
-            className="inline-flex items-center gap-2 rounded-full border border-violet-200/80 dark:border-violet-800/50 bg-violet-50 dark:bg-violet-950/50 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-violet-600 dark:text-violet-400 mb-6 backdrop-blur-sm"
-          >
-            <Compass className="w-3.5 h-3.5" />
-            How It Works
-          </motion.span>
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ delay: 0.2, duration: 0.6 }}
-            className="text-3xl sm:text-4xl lg:text-5xl font-bold text-surface-900 dark:text-white tracking-tight"
-          >
-            Three steps to your
-            <span className="text-gradient-warm"> dream trip</span>
-          </motion.h2>
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ delay: 0.3, duration: 0.6 }}
-            className="mt-5 text-lg text-surface-500 dark:text-surface-400 leading-relaxed"
-          >
-            No more hours of research and planning. Get a complete travel itinerary in under a minute.
-          </motion.p>
-        </motion.div>
+      <div className="relative mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+        <SectionHeading
+          eyebrow="How it works"
+          title="Three steps."
+          accent="Zero spreadsheet."
+          subtitle="No more 40 open tabs and a dying spreadsheet. Here's the whole process."
+        />
 
-        {/* Steps Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 relative">
-          {/* Connecting line (desktop only) */}
-          <div className="hidden md:block absolute top-[68px] left-[20%] right-[20%] h-px bg-gradient-to-r from-indigo-300 via-violet-300 to-amber-300 dark:from-indigo-600 dark:via-violet-600 dark:to-amber-600" />
+        <div className="relative">
+          {/* Vertical line */}
+          <div className="absolute left-6 top-0 bottom-0 w-px bg-gradient-to-b from-indigo-400 via-violet-400 to-amber-400 opacity-40" />
 
-          {steps.map((step, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, y: 30 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ delay: i * 0.15 + 0.35, duration: 0.5 }}
-              whileHover={{ y: -4 }}
-              className="group relative rounded-2xl bg-white dark:bg-surface-900 shadow-sm ring-1 ring-surface-200/80 dark:ring-surface-800/50 p-7 lg:p-8 text-center transition-all duration-300 hover:shadow-xl hover:shadow-violet-100/50 dark:hover:shadow-violet-950/30 hover:ring-violet-200/60 dark:hover:ring-violet-800/40"
-            >
-              {/* Hover gradient overlay */}
-              <div className={`absolute inset-0 bg-gradient-to-br ${step.gradient} opacity-0 group-hover:opacity-[0.03] transition-opacity duration-500 rounded-2xl`} />
-
-              {/* Number badge */}
-              <div className="absolute top-5 right-6 text-[11px] font-mono font-bold text-surface-200 dark:text-surface-800 tracking-widest group-hover:text-surface-300 dark:group-hover:text-surface-700 transition-colors">
-                {step.number}
-              </div>
-
-              {/* Icon container */}
-              <div className={`relative z-10 mx-auto w-[52px] h-[52px] rounded-2xl ${step.bgLight} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}>
-                <step.icon className={`w-6 h-6 ${step.iconColor}`} />
-              </div>
-
-              {/* Step label */}
-              <p className={`relative z-10 text-xs font-bold uppercase tracking-widest ${step.iconColor} mb-3`}>
-                Step {step.number}
-              </p>
-
-              {/* Content */}
-              <div className="relative z-10">
-                <h3 className="text-lg font-bold text-surface-900 dark:text-white mb-3">
-                  {step.title}
-                </h3>
-                <p className="text-sm text-surface-500 dark:text-surface-400 leading-relaxed">
-                  {step.description}
-                </p>
-              </div>
-
-              {/* Bottom accent line */}
-              <div className={`absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r ${step.gradient} rounded-b-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
-            </motion.div>
-          ))}
+          <div className="space-y-8">
+            {steps.map((s, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, x: -24 }}
+                animate={isInView ? { opacity: 1, x: 0 } : {}}
+                transition={{ delay: 0.15 + i * 0.18, duration: 0.6, ease: EASE }}
+                className="relative flex gap-6 pl-0"
+              >
+                <div className="relative z-10 flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 shadow-premium">
+                  <s.icon className="w-5 h-5 text-white" />
+                  <span className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-amber-400 text-[10px] font-extrabold text-amber-950">{i + 1}</span>
+                </div>
+                <div className="group flex-1 rounded-2xl border border-surface-200/80 dark:border-surface-800/60 bg-white dark:bg-surface-900 p-6 transition-all duration-300 hover:shadow-premium hover:border-indigo-200 dark:hover:border-indigo-500/30">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <h3 className="text-lg font-bold text-surface-900 dark:text-white">{s.title}</h3>
+                    <span className="rounded-full bg-indigo-50 dark:bg-indigo-500/10 px-3 py-1 text-[11px] font-semibold text-indigo-600 dark:text-indigo-300">{s.tag}</span>
+                  </div>
+                  <p className="mt-2 text-sm leading-relaxed text-surface-500 dark:text-surface-400">{s.desc}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
         </div>
 
-        {/* CTA */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ delay: 0.65, duration: 0.5 }}
-          className="mt-16 text-center"
+          transition={{ delay: 0.8, duration: 0.6, ease: EASE }}
+          className="mt-14 text-center"
         >
           <Link to="/planner">
-            <button className="group relative inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-indigo-600 to-violet-600 px-8 py-3.5 text-base font-semibold text-white shadow-lg shadow-indigo-200/50 dark:shadow-indigo-950/30 transition-all hover:-translate-y-0.5 hover:shadow-xl hover:shadow-indigo-300/50 dark:hover:shadow-indigo-900/40">
-              <span className="relative z-10">Try It Now — It's Free</span>
-              <ArrowRight className="w-4 h-4 relative z-10 transition-transform group-hover:translate-x-1" />
+            <button className="group inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-indigo-600 to-violet-600 px-8 py-3.5 text-base font-semibold text-white shadow-premium transition-all duration-300 hover:-translate-y-0.5 hover:shadow-premium-lg">
+              Try it now — it's free
+              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
             </button>
           </Link>
         </motion.div>
@@ -541,184 +765,158 @@ function HowItWorksSection() {
   )
 }
 
-// Testimonials Section
-function TestimonialsSection() {
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: true })
+/* ------------------------------------------------------------------ */
+/*  TESTIMONIALS                                                       */
+/* ------------------------------------------------------------------ */
 
-  const testimonials = [
+function FaqSection() {
+  const ref = useRef(null)
+  const isInView = useInView(ref, { once: true, margin: '-80px' })
+  const [open, setOpen] = useState(0)
+
+  const faqs = [
     {
-      name: 'Sarah Chen',
-      role: 'Solo Traveler',
-      quote: 'I was overwhelmed by planning my first solo trip to Japan. VoyageAgent gave me a perfect week-by-week plan that saved me hours of research.',
-      avatar: 'SC',
-      gradient: 'from-blue-400 to-violet-500',
+      q: 'How accurate are the cost estimates?',
+      a: 'Each plan breaks down stay, food, transit and activities using current per-destination pricing. You get a total and a line-by-line split, so you can adjust any line before you book. Treat it as a planning baseline, not a quote.',
     },
     {
-      name: 'Marcus Rivera',
-      role: 'Family Traveler',
-      quote: 'Planning a family trip with kids is a nightmare. VoyageAgent suggested kid-friendly spots and realistic timelines. We had an amazing vacation.',
-      avatar: 'MR',
-      gradient: 'from-amber-400 to-orange-500',
+      q: 'Do I need an account to plan a trip?',
+      a: 'No. You can generate a full itinerary without signing up. If you want to save or share a plan later, that is the only time we ask you to create one.',
     },
     {
-      name: 'Priya Sharma',
-      role: 'Digital Nomad',
-      quote: 'As someone who travels constantly, I need quick plans that work. VoyageAgent generates detailed itineraries in seconds.',
-      avatar: 'PS',
-      gradient: 'from-emerald-400 to-teal-500',
+      q: 'Can I change the plan after it is generated?',
+      a: 'Yes. Swap days, add a destination, or tighten the budget and regenerate in seconds. The itinerary is a starting point, and every field is editable.',
+    },
+    {
+      q: 'How long does it take to get a plan?',
+      a: 'Most plans generate in under 30 seconds. Complex multi-city trips with many preferences can take a little longer, but you will see the process in real time.',
+    },
+    {
+      q: 'Is there a free tier?',
+      a: 'Planning is free to use. You only pay if you choose features like saved trips, collaboration, or priority generation.',
     },
   ]
 
   return (
-    <section id="testimonials" ref={ref} className="relative py-24 lg:py-32 bg-surface-50 dark:bg-surface-950 overflow-hidden">
-      {/* Subtle background decoration */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-gradient-to-b from-amber-100/40 dark:from-amber-950/15 to-transparent rounded-full blur-3xl pointer-events-none" />
+    <section id="faq" ref={ref} className="relative bg-surface-100 dark:bg-surface-900/50 py-24 lg:py-32 overflow-hidden">
+      <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
+        <SectionHeading
+          eyebrow="FAQ"
+          title="Good questions."
+          accent="Straight answers."
+          subtitle="Everything you need to know before you start planning."
+        />
 
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative">
-        {/* Section Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6 }}
-          className="text-center max-w-2xl mx-auto mb-20"
-        >
-          <motion.span
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={isInView ? { opacity: 1, scale: 1 } : {}}
-            transition={{ delay: 0.1, duration: 0.5 }}
-            className="inline-flex items-center gap-2 rounded-full border border-amber-200/80 dark:border-amber-800/50 bg-amber-50 dark:bg-amber-950/50 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-amber-600 dark:text-amber-400 mb-6 backdrop-blur-sm"
-          >
-            <Star className="w-3.5 h-3.5 fill-amber-400" />
-            Testimonials
-          </motion.span>
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ delay: 0.2, duration: 0.6 }}
-            className="text-3xl sm:text-4xl lg:text-5xl font-bold text-surface-900 dark:text-white tracking-tight"
-          >
-            Loved by travelers
-            <span className="text-gradient-warm"> worldwide</span>
-          </motion.h2>
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ delay: 0.3, duration: 0.6 }}
-            className="mt-5 text-lg text-surface-500 dark:text-surface-400 leading-relaxed"
-          >
-            Join thousands of happy travelers who plan smarter with VoyageAgent.
-          </motion.p>
-        </motion.div>
-
-        {/* Testimonials Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
-          {testimonials.map((t, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, y: 30 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ delay: i * 0.12 + 0.35, duration: 0.5 }}
-              whileHover={{ y: -4 }}
-              className="group relative rounded-2xl bg-white dark:bg-surface-900/80 shadow-sm ring-1 ring-surface-200/80 dark:ring-surface-800/60 p-7 lg:p-8 transition-all duration-300 hover:shadow-xl hover:shadow-amber-100/50 dark:hover:shadow-amber-950/20 hover:ring-amber-200/60 dark:hover:ring-amber-800/40"
-            >
-              {/* Hover gradient overlay */}
-              <div className={`absolute inset-0 bg-gradient-to-br ${t.gradient} opacity-0 group-hover:opacity-[0.03] transition-opacity duration-500 rounded-2xl`} />
-
-              {/* Quote mark */}
-              <div className={`absolute -top-3 -right-3 w-10 h-10 rounded-xl bg-gradient-to-br ${t.gradient} flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-md`}>
-                <span className="text-xl font-serif text-white">"</span>
-              </div>
-
-              {/* Stars */}
-              <div className="flex gap-1 mb-5">
-                {[...Array(5)].map((_, j) => (
-                  <Star key={j} className="w-[18px] h-[18px] fill-amber-400 text-amber-400 dark:drop-shadow-[0_0_6px_rgba(251,191,36,0.3)]" />
-                ))}
-              </div>
-
-              {/* Content */}
-              <div className="relative z-10">
-                <p className="text-[15px] text-surface-700 dark:text-surface-200 leading-relaxed mb-7">
-                  {t.quote}
-                </p>
-
-                <div className="flex items-center gap-3 pt-5 border-t border-surface-100 dark:border-surface-800/80">
-                  <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${t.gradient} flex items-center justify-center text-sm font-bold text-white shadow-md ring-2 ring-white/20 dark:ring-surface-900/50`}>
-                    {t.avatar}
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-surface-900 dark:text-white">{t.name}</p>
-                    <p className="text-xs text-surface-500 dark:text-surface-400">{t.role}</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Bottom accent line */}
-              <div className={`absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r ${t.gradient} rounded-b-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
-            </motion.div>
-          ))}
+        <div className="space-y-3">
+          {faqs.map((f, i) => {
+            const isOpen = open === i
+            return (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                animate={isInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ delay: 0.1 + i * 0.07, duration: 0.5, ease: EASE }}
+                className={`rounded-2xl border bg-white dark:bg-surface-900 transition-colors duration-300 ${isOpen ? 'border-indigo-300 dark:border-indigo-500/40 shadow-premium' : 'border-surface-200/80 dark:border-surface-800/60'}`}
+              >
+                <button
+                  onClick={() => setOpen(isOpen ? -1 : i)}
+                  className="flex w-full items-center justify-between gap-4 px-6 py-5 text-left"
+                  aria-expanded={isOpen}
+                >
+                  <span className="text-sm sm:text-base font-semibold text-surface-900 dark:text-white">{f.q}</span>
+                  <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full border transition-all duration-300 ${isOpen ? 'rotate-45 border-indigo-300 dark:border-indigo-500/40 text-indigo-500 dark:text-indigo-300' : 'border-surface-200 dark:border-surface-700 text-surface-400'}`}>
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 5v14m7-7H5" /></svg>
+                  </span>
+                </button>
+                <AnimatePresence initial={false}>
+                  {isOpen && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.3, ease: EASE }}
+                      className="overflow-hidden"
+                    >
+                      <p className="px-6 pb-5 text-sm leading-relaxed text-surface-500 dark:text-surface-400">{f.a}</p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            )
+          })}
         </div>
       </div>
     </section>
   )
 }
 
-// CTA Section
+/* ------------------------------------------------------------------ */
+/*  CTA                                                                */
+/* ------------------------------------------------------------------ */
+
 function CTASection() {
   const ref = useRef(null)
-  const isInView = useInView(ref, { once: true })
+  const isInView = useInView(ref, { once: true, margin: '-80px' })
 
   return (
-    <section ref={ref} className="relative py-24 bg-surface-50 dark:bg-surface-950 overflow-hidden">
+    <section ref={ref} className="relative bg-surface-50 dark:bg-surface-950 py-24 lg:py-28">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 32 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6 }}
-          className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 p-8 sm:p-12 lg:p-20"
+          transition={{ duration: 0.7, ease: EASE }}
+          className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-600 via-violet-600 to-purple-700 px-6 py-16 sm:px-12 lg:px-20 lg:py-24 shadow-premium-lg"
         >
-          {/* Animated blobs */}
-          <div className="absolute -top-40 -left-40 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl animate-blob" />
-          <div className="absolute top-1/3 -right-20 w-80 h-80 bg-violet-500/20 rounded-full blur-3xl animate-blob animation-delay-2000" />
-          <div className="absolute bottom-1/4 left-1/4 w-72 h-72 bg-amber-500/15 rounded-full blur-3xl animate-blob animation-delay-4000" />
-          <div className="absolute inset-0" style={{
-            backgroundImage: 'linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)',
-            backgroundSize: '60px 60px'
-          }} />
+          <div
+            className="absolute inset-0 opacity-40 pointer-events-none"
+            style={{
+              backgroundImage:
+                'linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px)',
+              backgroundSize: '56px 56px',
+            }}
+          />
+          <div className="absolute -top-24 -left-16 h-72 w-72 rounded-full bg-blue-400/25 blur-3xl animate-blob pointer-events-none" />
+          <div className="absolute -bottom-24 -right-16 h-72 w-72 rounded-full bg-amber-300/20 blur-3xl animate-blob animation-delay-2000 pointer-events-none" />
+          <motion.div
+            animate={{ y: [0, -12, 0] }}
+            transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
+            className="absolute right-10 top-10 hidden lg:block"
+          >
+            <Plane className="w-16 h-16 text-white/10 -rotate-12" />
+          </motion.div>
 
           <div className="relative text-center max-w-2xl mx-auto">
-            <div className="inline-flex items-center gap-2 rounded-full border border-blue-500/30 bg-blue-500/10 px-4 py-1.5 mb-8">
-              <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-              <span className="text-xs font-semibold uppercase tracking-wider text-blue-300">Start Planning Today</span>
-            </div>
+            <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 backdrop-blur-sm px-4 py-1.5 mb-7 text-xs font-semibold uppercase tracking-wider text-indigo-100">
+              <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+              Start planning today
+            </span>
 
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white tracking-tight mb-6">
-              Ready to plan your next
-              <span className="text-gradient"> adventure?</span>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white">
+              Ready to plan your next{' '}
+              <span className="bg-gradient-to-r from-amber-200 via-white to-amber-200 bg-clip-text text-transparent">adventure?</span>
             </h2>
 
-            <p className="text-lg text-surface-100 max-w-xl mx-auto mb-10 leading-relaxed">
-              Join 12,000+ travelers who have used VoyageAgent to plan smarter. Your perfect trip is just one click away.
+            <p className="mt-5 text-base sm:text-lg text-indigo-100/90 leading-relaxed max-w-xl mx-auto">
+              Your perfect trip is one prompt away. Free to plan, no credit
+              card, done before your coffee cools.
             </p>
 
-            <Link to="/planner">
-              <button className="group inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-indigo-600 to-violet-600 px-10 py-4 text-lg font-semibold text-white shadow-xl shadow-indigo-500/30 transition-all hover:-translate-y-0.5 hover:shadow-2xl">
-                <Plane className="w-5 h-5" />
-                Plan My Trip — It's Free
-                <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
-              </button>
-            </Link>
+            <div className="mt-9">
+              <Link to="/planner">
+                <button className="group inline-flex items-center gap-3 rounded-full bg-white px-10 py-4 text-lg font-bold text-indigo-700 shadow-2xl shadow-indigo-950/40 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-indigo-950/60">
+                  <Plane className="w-5 h-5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                  Plan my trip — it's free
+                  <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+                </button>
+              </Link>
+            </div>
 
-            <div className="mt-8 flex items-center justify-center gap-6 text-sm text-surface-200">
-              <span className="flex items-center gap-1.5">
-                <Check className="w-4 h-4 text-emerald-400" />
-                No credit card required
-              </span>
-              <span className="flex items-center gap-1.5">
-                <Sparkles className="w-4 h-4 text-indigo-400" />
-                AI-powered planning
-              </span>
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-x-7 gap-y-3">
+              {['No credit card required', 'AI-powered planning', 'Ready in 30 seconds'].map((t) => (
+                <span key={t} className="flex items-center gap-1.5 text-sm text-indigo-100/80">
+                  <Check className="w-4 h-4 text-emerald-300" /> {t}
+                </span>
+              ))}
             </div>
           </div>
         </motion.div>
@@ -727,15 +925,20 @@ function CTASection() {
   )
 }
 
-// Main Landing Page
+/* ------------------------------------------------------------------ */
+/*  PAGE                                                               */
+/* ------------------------------------------------------------------ */
+
 function LandingPage() {
   return (
-    <div className="bg-surface-50">
+    <div className="bg-surface-50 dark:bg-surface-950">
       <HeroSection />
+      <MarqueeStrip />
       <StatsSection />
+      <LiveDemoSection />
       <FeaturesSection />
       <HowItWorksSection />
-      <TestimonialsSection />
+      <FaqSection />
       <CTASection />
     </div>
   )

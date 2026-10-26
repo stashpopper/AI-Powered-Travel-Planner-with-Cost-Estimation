@@ -34,7 +34,7 @@ class CostService:
         self.geo_cache: dict[str, tuple[float, float]] = {}
         self.city_cost_cache: dict[str, dict[str, int]] = {}
         self.llm = llm or init_chat_model(
-            model="mistral-small-latest",
+            model="labs-leanstral-1-5-1",
             model_provider="mistralai",
             temperature=0.3,
             api_key=os.getenv("MISTRAL_API_KEY"),

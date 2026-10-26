@@ -10,14 +10,14 @@ const steps = [
   { key: 'details', label: 'Trip Details', icon: '📋' },
 ]
 
-function JourneyWizard({ onSubmit, loading = false }) {
+function JourneyWizard({ onSubmit, loading = false, initialData = {} }) {
   const [currentStep, setCurrentStep] = useState(0)
   const [formData, setFormData] = useState({
-    origin: '',
-    destination: '',
-    preferences: [],
-    days: 3,
-    budget: '',
+    origin: initialData.origin ?? '',
+    destination: initialData.destination ?? '',
+    preferences: initialData.preferences ?? [],
+    days: initialData.days ?? 3,
+    budget: initialData.budget ?? '',
   })
 
   const stepData = {

@@ -102,8 +102,8 @@ function Navbar() {
                 <a href="#how-it-works" className={`relative px-3 py-2 text-sm font-medium transition-colors duration-300 ${getTextColor()} hover:text-indigo-400 after:absolute after:bottom-0 after:left-1/2 after:w-0 after:h-0.5 after:bg-indigo-400 after:transition-all after:duration-300 after:-translate-x-1/2 hover:after:w-full ${getTextColor()}`}>
                   How It Works
                 </a>
-                <a href="#testimonials" className={`relative px-3 py-2 text-sm font-medium transition-colors duration-300 ${getTextColor()} hover:text-indigo-400 after:absolute after:bottom-0 after:left-1/2 after:w-0 after:h-0.5 after:bg-indigo-400 after:transition-all after:duration-300 after:-translate-x-1/2 hover:after:w-full ${getTextColor()}`}>
-                  Testimonials
+                <a href="#faq" className={`relative px-3 py-2 text-sm font-medium transition-colors duration-300 ${getTextColor()} hover:text-indigo-400 after:absolute after:bottom-0 after:left-1/2 after:w-0 after:h-0.5 after:bg-indigo-400 after:transition-all after:duration-300 after:-translate-x-1/2 hover:after:w-full ${getTextColor()}`}>
+                  FAQ
                 </a>
               </>
             )}
@@ -148,7 +148,7 @@ function Navbar() {
                 <>
                   <a href="#features" onClick={() => setMobileOpen(false)} className="block px-3 py-2 text-sm font-medium text-surface-600 dark:text-surface-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-black/5 dark:hover:bg-white/5 rounded-lg transition-colors duration-200">Features</a>
                   <a href="#how-it-works" onClick={() => setMobileOpen(false)} className="block px-3 py-2 text-sm font-medium text-surface-600 dark:text-surface-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-black/5 dark:hover:bg-white/5 rounded-lg transition-colors duration-200">How It Works</a>
-                  <a href="#testimonials" onClick={() => setMobileOpen(false)} className="block px-3 py-2 text-sm font-medium text-surface-600 dark:text-surface-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-black/5 dark:hover:bg-white/5 rounded-lg transition-colors duration-200">Testimonials</a>
+                  <a href="#faq" onClick={() => setMobileOpen(false)} className="block px-3 py-2 text-sm font-medium text-surface-600 dark:text-surface-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-black/5 dark:hover:bg-white/5 rounded-lg transition-colors duration-200">FAQ</a>
                 </>
               )}
               <div className="pt-2 mt-2 border-t border-gray-200/50 dark:border-white/5">

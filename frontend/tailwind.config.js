@@ -19,6 +19,10 @@ export default {
           950: '#020617',
         },
       },
+      boxShadow: {
+        'premium': '0 20px 50px -12px rgba(79, 70, 229, 0.25)',
+        'premium-lg': '0 30px 80px -16px rgba(79, 70, 229, 0.35)',
+      },
     },
   },
   plugins: [],

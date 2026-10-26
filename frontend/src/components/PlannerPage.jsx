@@ -1,11 +1,14 @@
 import { useState, useMemo } from 'react'
 import axios from 'axios'
+import { useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import JourneyWizard from './JourneyWizard'
 import LoadingAnimation from './LoadingAnimation'
 import ItineraryResults from './ItineraryResults'
 
 function PlannerPage() {
+  const location = useLocation()
+  const initialData = location.state || {}
   const [loading, setLoading] = useState(false)
   const [data, setData] = useState(null)
   const [error, setError] = useState(null)
@@ -98,7 +101,7 @@ function PlannerPage() {
               </div>
 
               <div className="rounded-2xl sm:rounded-3xl bg-white dark:bg-surface-900 shadow-lg shadow-surface-200/50 dark:shadow-surface-950/50 ring-1 ring-surface-200/60 dark:ring-surface-800/60 overflow-hidden">
-                <JourneyWizard onSubmit={handleSubmit} loading={loading} />
+                <JourneyWizard key={`${initialData.destination || ''}-${initialData.days || ''}`} onSubmit={handleSubmit} loading={loading} initialData={initialData} />
               </div>
             </motion.div>
           )}
